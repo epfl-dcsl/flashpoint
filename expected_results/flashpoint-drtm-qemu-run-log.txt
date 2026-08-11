@@ -1,0 +1,812 @@
+Starting TPM with RISC-V arguments
+
+[INFO | anchor] hart 1 - PMP  0                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  0                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  1                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  1                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  2                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  2                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 15                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 15                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  0          80000000         80100000 | ___  NAPOT
+[INFO | anchor] hart 0 - PMP  0          80000000         80080000 | R__  NAPOT
+[INFO | anchor] hart 0 - PMP  1          80200000         80400000 | ___L NAPOT
+[INFO | anchor] hart 0 - PMP  2                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  1           4000000          4008000 | ___L NAPOT
+[INFO | anchor] hart 1 - PMP  2                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 15                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 15                 0                0 | ___  OFF
+[INFO | tpm-driver] Done setting up trap handler
+[INFO | tpm-driver] 
+
+Hello, world! I am THE TPM Driver.
+
+
+[INFO | tpm-driver] hart 0 - PMP  0          80000000         80080000 | R__L NAPOT
+[INFO | tpm-driver] hart 0 - PMP  1          80200000         80400000 | ___L NAPOT
+[INFO | tpm-driver] hart 0 - PMP  2                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  3                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  4                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  5                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  6                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  7                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  8                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  9                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 10                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 11                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 12                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 13                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 14                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 15                 0                0 | ___  OFF
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 144 
+For CC : 144, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 144
+
+[LIBTPMS CommandDispatcher] : Command index 37 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 143 
+For CC : 143, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 143
+
+[LIBTPMS CommandDispatcher] : Command index 36 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+OpenSBI v1.1
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name             : riscv-virtio,qemu
+Platform Features         : medeleg
+Platform HART Count       : 2
+Platform IPI Device       : aclint-mswi
+Platform Timer Device     : aclint-mtimer @ 10000000Hz
+Platform Console Device   : uart8250
+Platform HSM Device       : ---
+Platform PMU Device       : ---
+Platform Reboot Device    : sifive_test
+Platform Shutdown Device  : sifive_test
+Firmware Base             : 0x80200000
+Firmware Size             : 1148 KB
+Runtime SBI Version       : 1.0
+
+Domain0 Name              : root
+Domain0 Boot HART         : 1
+Domain0 HARTs             : 0*,1*
+Domain0 Region00          : 0x0000000002000000-0x000000000200ffff (I)
+Domain0 Region01          : 0x0000000080200000-0x00000000803fffff ()
+Domain0 Region02          : 0x0000000000000000-0xffffffffffffffff (R,W,X)
+Domain0 Next Address      : 0x0000000080800000
+Domain0 Next Arg1         : 0x0000000082800000
+Domain0 Next Mode         : S-mode
+Domain0 SysReset          
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End: yes
+
+Boot HART ID              : 1
+Boot HART Domain          : root
+Boot HART Priv Version    : v1.12
+
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17a 
+For CC : 17a, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17a
+
+[LIBTPMS CommandDispatcher] : Command index 91 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : EndBoot HART Base ISA        : rv64imafdch
+Boot HART ISA Extensions  : time,sstc
+Boot HART PMP Count       : 1
+Boot HART PMP Granularity : 4
+Boot HART PMP Address Bits: 30
+Boot HART MHPM Count      : 16
+Boot HART MIDELEG         : 0x0000000000001666
+Boot HART MEDELEG         : 0x0000000000f0b509
+
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+-----------------FW_JUMP_ADDR: 80800000 to mode 1d, TYCHE_SM_START_CONTENT 464c457f, TYCHE_SM_START_ADDR 80218720 -------------------
+
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+parse_and_load_elf tyche_entry 80450294 
+
+ARGS for TYCHE_SM: hartid: 1 , arg1: 82800000, next_addr: 80800000, next_mode: 1d 
+
+Tyche Manifest: num_harts: 2d
+Making an ecall for hartid: 0
+
+[sbi_hsm_hart_start]
+[sbi_hsm_hart_start] Checks done 1
+[sbi_hsm_hart_start] Checks done 1a
+[sbi_hsm_hart_start] SBI_HSM_STATE: 1
+[sbi_hsm_hart_start] Checks done 2
+[sbi_hsm_hart_start] Checks done
+[sbi_hsm_hart_start] Sending IPI to hartid: 0
+Returned from ecall for hartid: 0
+
+Making an ecall for hartid: 1
+
+Args to Anchor: tyche_start_addr: 80450000, region_size: 3affff, entry_addr: 80450294, hartid: 1, manifest_addr: 80440000
+[INFO | anchor] hart 1 - PMP  0          80000000         80100000 | ___  NAPOT
+[INFO | anchor] hart 1 - PMP  1           4000000          4008000 | ___L NAPOT
+[INFO | anchor] hart 1 - PMP  2                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 1 - PMP 15                 0                0 | ___  OFF
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 182 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x0
+For CC : 182, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 182
+
+[LIBTPMS CommandDispatcher] : Command index 99 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_PCR_Extend] : Start
+[LIBTPMS TPM2_PCR_Extend] : in pcrhandle: 0x0 
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 182 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x0
+For CC : 182, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 182
+
+[LIBTPMS CommandDispatcher] : Command index 99 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_PCR_Extend] : Start
+[LIBTPMS TPM2_PCR_Extend] : in pcrhandle: 0x0 
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 182 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x0
+For CC : 182, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 182
+
+[LIBTPMS CommandDispatcher] : Command index 99 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_PCR_Extend] : Start
+[LIBTPMS TPM2_PCR_Extend] : in pcrhandle: 0x0 
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 182 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x0
+For CC : 182, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 182
+
+[LIBTPMS CommandDispatcher] : Command index 99 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_PCR_Extend] : Start
+[LIBTPMS TPM2_PCR_Extend] : in pcrhandle: 0x0 
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 182 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x0
+For CC : 182, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 182
+
+[LIBTPMS CommandDispatcher] : Command index 99 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_PCR_Extend] : Start
+[LIBTPMS TPM2_PCR_Extend] : in pcrhandle: 0x0 
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 182 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x0
+For CC : 182, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 182
+
+[LIBTPMS CommandDispatcher] : Command index 99 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_PCR_Extend] : Start
+[LIBTPMS TPM2_PCR_Extend] : in pcrhandle: 0x0 
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 182 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x0
+For CC : 182, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 182
+
+[LIBTPMS CommandDispatcher] : Command index 99 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_PCR_Extend] : Start
+[LIBTPMS TPM2_PCR_Extend] : in pcrhandle: 0x0 
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[INFO | tpm-driver] Printing PCR 0's digest after SRTM:
+[200, 242, 137, 169, 27, 211, 243, 252, 101, 1, 83, 23, 47, 102, 196, 217, 232, 221, 184, 174, 98, 3, 105, 151, 218, 50, 83, 242, 92, 183, 243, 146, 8, 7, 27, 7, 39, 112, 92, 52, 163, 251, 96, 25, 193, 170, 140, 65]
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[INFO | tpm-driver] 
+
+Printing PCR 17's digest after SRTM:
+[255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255, 255]
+[INFO | tpm-driver] I am gonna go back to the anchor now!
+[INFO | anchor] hart 0 - PMP  0          80000000         80100000 | ___  NAPOT
+[INFO | anchor] hart 0 - PMP  1           4000000          4008000 | ___L NAPOT
+[INFO | anchor] hart 0 - PMP  2                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 15                 0                0 | ___  OFF
+[init_warmboot] for hartid: 0
+
+[init_warmboot] Done waiting for coldboot for hartid: 0
+
+[init_warm_startup] for hartid: 0
+
+[sbi_hsm_init] hartid: 0, cold_boot: 0
+[INFO | anchor] hart 0 - PMP  0          80000000         80080000 | ___  NAPOT
+[INFO | anchor] hart 0 - PMP  1          80400000         80500000 | R__L NAPOT
+[INFO | anchor] hart 0 - PMP  2          80200000         80400000 | ___L NAPOT
+[INFO | anchor] hart 0 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 15                 0                0 | ___  OFF
+[INFO | tpm-driver] Done setting up trap handler
+[INFO | tpm-driver] 
+
+Back in TPM Driver! DRTM_Region_Start_Addr: 0x80450000 DRTM_Region_Size: 0x15e3a TPM_Quote_Resp_Addr: 0x0
+
+
+[INFO | tpm-driver] hart 0 - PMP  0          80000000         80080000 | ___L NAPOT
+[INFO | tpm-driver] hart 0 - PMP  1          80400000         80500000 | R__L NAPOT
+[INFO | tpm-driver] hart 0 - PMP  2          80200000         80400000 | ___L NAPOT
+[INFO | tpm-driver] hart 0 - PMP  3                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  4                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  5                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  6                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  7                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  8                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP  9                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 10                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 11                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 12                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 13                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 14                 0                0 | ___  OFF
+[INFO | tpm-driver] hart 0 - PMP 15                 0                0 | ___  OFF
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[INFO | tpm-driver] Starting DRTM operations with args: 0x80450000, 0x15e3a.
+[INFO | tpm-driver] Done performing DRTM operations with return code: 0 .
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 191 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x40000001
+For CC : 191, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 191
+
+[LIBTPMS CommandDispatcher] : Command index 114 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_CreateLoaded] : Checking the parent/derivation parent : derivation: 0
+[LIBTPMS TPM2_CreateLoaded] : Checked the parent/derivation parent - creating new obj
+[LIBTPMS TPM2_CreateLoaded] : Found Empty Slot for New Object
+[LIBTPMS TPM2_CreateLoaded] : Unmarshalled object template into object space
+[LIBTPMS TPM2_CreateLoaded] : Validated authorization size
+[LIBTPMS TPM2_CreateLoaded] : Parent is NULL i.e. Primary Object
+[LIBTPMS TPM2_CreateLoaded] : Result 0 = TPM_RC_SUCESS 0
+[LIBTPMS TPM2_CreateLoaded] : Returning from the end with handle - in->parentHandle: 0x40000001 
+
+[LIBTPMS TPM2_CreateLoaded] : Returning from the end with out:  out->objectHandle: 0x80000000 
+
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 191 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x80000000
+For CC : 191, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 191
+
+[LIBTPMS CommandDispatcher] : Command index 114 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS TPM2_CreateLoaded] : Checking the parent/derivation parent : derivation: 0
+[LIBTPMS TPM2_CreateLoaded] : Checked the parent/derivation parent - creating new obj
+[LIBTPMS TPM2_CreateLoaded] : Found Empty Slot for New Object
+[LIBTPMS TPM2_CreateLoaded] : Unmarshalled object template into object space
+[LIBTPMS TPM2_CreateLoaded] : Validated authorization size
+[LIBTPMS TPM2_CreateLoaded] : Result 0 = TPM_RC_SUCESS 0
+[LIBTPMS TPM2_CreateLoaded] : Returning from the end with handle - in->parentHandle: 0x80000000 
+
+[LIBTPMS TPM2_CreateLoaded] : Returning from the end with out:  out->objectHandle: 0x80000001 
+
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 158 
+[LIBTPMS ParseHandleBuffer] : dType >= HANDLE_FIRST_FLAG_TYPE
+[LIBTPMS ParseHandleBuffer] : Got a handle 0x80000001
+For CC : 158, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 158
+
+[LIBTPMS CommandDispatcher] : Command index 57 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[INFO | tpm-driver] tpm quote response: 
+ 
+ ATTESTATION: 
+ 0x[255, 84, 67, 71, 128, 24, 0, 34, 0, 11, 225, 140, 159, 156, 219, 191, 226, 6, 80, 129, 254, 37, 168, 201, 60, 81, 201, 146, 233, 83, 172, 43, 76, 205, 6, 202, 38, 30, 66, 23, 159, 253, 0, 0, 0, 0, 0, 0, 0, 4, 172, 81, 61, 183, 233, 189, 20, 117, 185, 20, 1, 219, 26, 124, 61, 66, 181, 202, 206, 0, 0, 0, 1, 0, 12, 3, 1, 0, 2, 0, 48, 21, 107, 171, 36, 0, 127, 235, 34, 103, 48, 190, 27, 100, 100, 165, 219, 45, 240, 71, 154, 156, 18, 77, 164, 4, 139, 244, 0, 153, 14, 76, 57, 34, 26, 222, 219, 18, 156, 179, 39, 231, 220, 90, 44, 91, 202, 6, 94, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0], 
+ 
+  MODULUS: 
+ 0x[195, 168, 110, 69, 141, 51, 152, 1, 31, 236, 241, 49, 246, 167, 4, 197, 19, 46, 147, 252, 30, 77, 10, 157, 41, 93, 248, 127, 29, 62, 195, 86, 79, 48, 235, 156, 49, 210, 99, 92, 39, 240, 147, 156, 117, 81, 147, 234, 32, 128, 178, 231, 4, 106, 153, 202, 90, 143, 15, 222, 149, 132, 240, 42, 225, 32, 238, 55, 117, 179, 206, 250, 48, 211, 255, 24, 70, 147, 120, 31, 25, 173, 98, 114, 24, 66, 244, 219, 90, 158, 12, 74, 12, 162, 43, 199, 81, 1, 192, 106, 219, 236, 145, 248, 97, 96, 237, 16, 151, 66, 233, 8, 163, 123, 142, 128, 193, 82, 209, 200, 208, 3, 238, 50, 59, 123, 205, 12, 49, 87, 112, 90, 202, 133, 99, 2, 19, 43, 195, 236, 143, 49, 100, 22, 24, 236, 243, 62, 167, 148, 54, 64, 209, 177, 176, 22, 251, 97, 144, 12, 5, 18, 150, 34, 178, 219, 242, 240, 94, 39, 225, 177, 43, 89, 16, 180, 239, 97, 62, 15, 108, 96, 44, 8, 106, 95, 194, 7, 130, 49, 157, 102, 241, 50, 69, 109, 215, 77, 106, 56, 158, 199, 143, 66, 13, 177, 193, 52, 118, 234, 206, 2, 140, 39, 141, 162, 28, 58, 250, 237, 176, 81, 170, 131, 149, 55, 86, 235, 25, 69, 211, 124, 175, 229, 27, 23, 14, 81, 243, 170, 86, 53, 37, 157, 251, 68, 77, 201, 142, 166, 230, 253, 80, 175, 97, 91, 196, 160, 231, 41, 171, 178, 235, 145, 52, 195, 84, 218, 238, 223, 196, 16, 128, 124, 160, 100, 144, 9, 91, 207, 29, 167, 108, 252, 188, 29, 107, 111, 21, 28, 209, 247, 203, 77, 98, 149, 206, 229, 226, 205, 120, 4, 113, 224, 218, 161, 5, 23, 154, 177, 246, 251, 206, 125, 104, 5, 241, 79, 140, 14, 136, 255, 237, 73, 116, 217, 169, 19, 166, 68, 106, 65, 57, 176, 114, 14, 251, 193, 253, 88, 235, 42, 225, 213, 44, 116, 134, 173, 211, 25, 51, 236, 172, 131, 163, 76, 31, 6, 187, 215, 85, 95, 152, 241, 18, 26, 124, 114, 73, 3, 6, 112, 190, 39, 44, 120, 63, 115, 110, 6, 46, 79, 137, 17], 
+ 
+ SIGN: 
+ 0x[40, 0, 45, 197, 71, 18, 247, 202, 137, 215, 30, 14, 215, 213, 81, 220, 214, 253, 103, 138, 39, 165, 225, 171, 89, 155, 58, 245, 114, 154, 185, 236, 13, 200, 145, 171, 141, 146, 199, 175, 164, 90, 220, 65, 25, 200, 116, 176, 9, 156, 223, 106, 81, 149, 154, 176, 139, 136, 32, 247, 93, 62, 236, 35, 38, 57, 110, 3, 223, 177, 253, 32, 151, 172, 30, 127, 51, 49, 162, 14, 64, 199, 250, 247, 92, 106, 185, 213, 115, 94, 121, 217, 12, 167, 144, 163, 20, 29, 122, 48, 175, 16, 229, 217, 92, 151, 186, 228, 34, 3, 139, 214, 90, 30, 152, 236, 67, 154, 120, 64, 195, 90, 15, 119, 152, 86, 218, 225, 134, 186, 220, 180, 215, 143, 164, 53, 157, 3, 85, 227, 250, 233, 73, 238, 204, 128, 176, 237, 234, 45, 168, 152, 182, 6, 11, 147, 105, 80, 61, 119, 131, 126, 105, 173, 206, 137, 164, 183, 215, 106, 99, 114, 101, 111, 56, 237, 88, 79, 204, 27, 214, 133, 138, 194, 73, 125, 55, 38, 218, 71, 143, 195, 128, 2, 63, 247, 251, 74, 92, 113, 225, 152, 196, 30, 13, 16, 79, 129, 33, 109, 178, 69, 15, 242, 209, 209, 218, 195, 120, 196, 243, 217, 155, 19, 93, 195, 26, 251, 108, 242, 44, 42, 233, 22, 16, 216, 147, 85, 241, 54, 254, 53, 117, 251, 152, 230, 95, 180, 116, 188, 103, 17, 224, 59, 85, 114, 151, 226, 59, 203, 122, 154, 171, 249, 80, 180, 53, 43, 116, 239, 254, 17, 8, 42, 40, 179, 135, 233, 9, 166, 51, 137, 254, 11, 30, 117, 208, 56, 64, 236, 191, 176, 161, 0, 129, 141, 228, 247, 143, 74, 1, 144, 200, 241, 203, 11, 91, 224, 191, 120, 207, 129, 149, 137, 13, 2, 120, 155, 38, 172, 251, 143, 213, 96, 56, 112, 188, 222, 3, 51, 21, 93, 57, 114, 0, 246, 114, 89, 159, 79, 178, 234, 184, 244, 87, 11, 114, 179, 160, 203, 99, 228, 88, 80, 203, 254, 224, 4, 203, 56, 49, 28, 45, 69, 221, 57, 251, 225, 153, 239, 6, 209, 54, 249, 104, 19, 203, 207, 239, 52, 162, 243, 147, 131]
+[LIBTPMS _plat__RunCommand] : Start
+ [LIBTPMS ExecuteCommand] Executing command 
+ [LIBTPMS ExecuteCommand] Checking that command is implemented 17e 
+For CC : 17e, We succeed at parsing the handle buffer
+
+We are trying to dispatch command 17e
+
+[LIBTPMS CommandDispatcher] : Command index 95 
+[LIBTPMS CommandDispatcher] : hasInParams > 0
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : In for loop
+[LIBTPMS CommandDispatcher] : After marshal
+[LIBTPMS _plat__RunCommand] : End
+[INFO | tpm-driver] Printing PCR 17's digest :[9, 28, 208, 208, 226, 108, 153, 103, 158, 133, 230, 223, 66, 222, 60, 22, 68, 81, 189, 38, 197, 140, 96, 156, 214, 197, 188, 24, 98, 17, 205, 90, 92, 223, 159, 188, 122, 107, 109, 230, 90, 218, 44, 157, 160, 165, 43, 53]
+[INFO | tpm-driver] Boot time measurements for hart 0:
+[INFO | tpm-driver]   before startup       mcycle: 2618221144165704  minstret: 2618221144198128
+[INFO | tpm-driver]   after startup        mcycle: 2618221224132612  minstret: 2618221224147354
+[INFO | tpm-driver]   before pcr_extend 1  mcycle: 2618221229508066  minstret: 2618221229521548
+[INFO | tpm-driver]   after pcr_extend 1   mcycle: 2618221485601470  minstret: 2618221485616044
+[INFO | tpm-driver]   before pcr_extend 2  mcycle: 2618221486671588  minstret: 2618221486684692
+[INFO | tpm-driver]   after pcr_extend 2   mcycle: 2618221634517258  minstret: 2618221634535696
+[INFO | tpm-driver]   before pcr_extend 3  mcycle: 2618221635501570  minstret: 2618221635514926
+[INFO | tpm-driver]   after pcr_extend 3   mcycle: 2618221705785252  minstret: 2618221705801464
+[INFO | tpm-driver]   before pcr_extend 4  mcycle: 2618221706777796  minstret: 2618221706793210
+[INFO | tpm-driver]   after pcr_extend 4   mcycle: 2618221708553682  minstret: 2618221708567584
+[INFO | tpm-driver]   before pcr_extend 5  mcycle: 2618221709232528  minstret: 2618221709246052
+[INFO | tpm-driver]   after pcr_extend 5   mcycle: 2618221929643614  minstret: 2618221929658524
+[INFO | tpm-driver]   before pcr_extend 6  mcycle: 2618221930501254  minstret: 2618221930516500
+[INFO | tpm-driver]   after pcr_extend 6   mcycle: 2618222007549330  minstret: 2618222007562728
+[INFO | tpm-driver]   before pcr_extend 7  mcycle: 2618222008258542  minstret: 2618222008270596
+[INFO | tpm-driver]   after pcr_extend 7   mcycle: 2618222009763486  minstret: 2618222009775624
+[INFO | tpm-driver]   before drtm ops      mcycle: 2618222047059444  minstret: 2618222047092792
+[INFO | tpm-driver]   after drtm ops       mcycle: 2618223391270536  minstret: 2618223391284144
+[INFO | tpm-driver]   before tpm quote     mcycle: 2618223392050182  minstret: 2618223392064588
+[INFO | tpm-driver]   after tpm quote      mcycle: 2618224494278274  minstret: 2618224494294612
+[INFO | tpm-driver] I am gonna go back to the anchor now!
+[INFO | anchor] hart 0 - PMP  0          80000000         80100000 | ___  NAPOT
+[INFO | anchor] hart 0 - PMP  1           4000000          4008000 | ___L NAPOT
+[INFO | anchor] hart 0 - PMP  2                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  3                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  4                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  5                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  6                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  7                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  8                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP  9                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 10                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 11                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 12                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 13                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 14                 0                0 | ___  OFF
+[INFO | anchor] hart 0 - PMP 15                 0                0 | ___  OFF
+[INFO | anchor] Boot time measurements for hart 0:
+[INFO | anchor]   after init           mcycle: 2618221079960136  minstret: 2618221080076140
+[INFO | anchor]   start non-boot init wait mcycle: 2618221129949754  minstret: 2618221129982472
+[INFO | anchor]   end non-boot init wait mcycle: 2618221130031906  minstret: 2618221130049378
+[INFO | anchor]   before srtm          mcycle: 2618221130102928  minstret: 2618221130133672
+[INFO | anchor]   after tpm_drv_entry_srtm mcycle: 2618221130450898  minstret: 2618221130440314
+[INFO | anchor]   after srtm           mcycle: 2618222015537310  minstret: 2618222015554110
+[INFO | anchor]   before untrusted     mcycle: 2618222022393726  minstret: 2618222022408300
+[INFO | anchor]   after untrusted      mcycle: 2618222025060768  minstret: 2618222025094074
+[INFO | anchor]   start non-boot untrusted wait mcycle: 2618222031642420  minstret: 2618222031657078
+[INFO | anchor]   before drtm          mcycle: 2618222031683412  minstret: 2618222031696264
+[INFO | anchor]   after tpm_drv_entry_drtm mcycle: 2618222031812058  minstret: 2618222031804498
+[INFO | anchor]   after drtm           mcycle: 2618224508940642  minstret: 2618224508958156
+[INFO | anchor]   before sm            mcycle: 2618224515698190  minstret: 2618224515713856[INFO | tyche::riscv::init] ============= Hello from Second Stage on Coldboot Hart ID: 1 =============
+[INFO | tyche::riscv::init] Manifest Content: 1 82800000 80800000 1 2
+[INFO | tyche::riscv::init] Done with arch init
+[DEBUG | tyche::riscv::platform] MonitorRiscv init
+[INFO | capa_engine] About to seal
+[DEBUG | tyche::riscv::platform] MonitorRiscv init - about to apply updates
+[DEBUG | tyche::riscv::platform] MonitorRiscv init - about to apply updates
+[DEBUG | tyche::riscv::platform] PMP Write Ok
+[DEBUG | tyche::riscv::platform] PMP Write Ok
+[DEBUG | tyche::riscv::platform] MonitorRiscv init - done creating initial domain and root regions
+[INFO | tyche::riscv::init] Done with monitor init
+[DEBUG | tyche::riscv::platform] Creating initial domain.
+[DEBUG | tyche::riscv::state] Updating PMPs FOR REAL!
+[INFO | tyche::riscv::init] Initial domain is ready.
+[INFO | riscv_pmp] Hart 1 PMP Index: 0  PMP CFG: 10011000 PMP ADDR: 2001ffff
+[INFO | riscv_pmp] Hart 1 PMP Index: 1  PMP CFG: 10011000 PMP ADDR: 1000fff
+[INFO | riscv_pmp] Hart 1 PMP Index: 2  PMP CFG: 0 PMP ADDR: 40000
+[INFO | riscv_pmp] Hart 1 PMP Index: 3  PMP CFG: 1111 PMP ADDR: 10000000
+[INFO | riscv_pmp] Hart 1 PMP Index: 4  PMP CFG: 0 PMP ADDR: 20200000
+[INFO | riscv_pmp] Hart 1 PMP Index: 5  PMP CFG: 1111 PMP ADDR: 200000000
+[INFO | riscv_pmp] Hart 1 PMP Index: 6  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 7  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 8  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 9  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 10  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 11  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 12  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 13  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 14  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 1 PMP Index: 15  PMP CFG: 0 PMP ADDR: 0
+[INFO | tyche::riscv::init] MIP: 0 MIE: 8 MSTATUS: a00000000 MEDELEG: f0b509 MIDELEG: 1666 MENVCFG: a0000000000000f0
+[INFO | tyche::riscv] HartID: 1 Mcycle : 2618224551729864 Minstret 2618224551745362 
+============= Launching Linux from Tyche =============
+
+Computed spec_version: 1000000
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+probing a0 54494d45
+PROBING sbi::EXT_TIME/IPI/RFENCE.
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 735049
+PROBING sbi::EXT_TIME/IPI/RFENCE.
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 52464e43
+PROBING sbi::EXT_TIME/IPI/RFENCE.
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 53525354
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 48534d
+Hart_suspend
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 48534d
+Hart_suspend
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+SBI_HSM_HART_START![INFO | tyche::riscv::init] Done spinning for hart 0
+[DEBUG | tyche::riscv::platform] Creating initial domain.
+[DEBUG | tyche::riscv::state] Updating PMPs FOR REAL!
+[INFO | tyche::riscv::init] Next_addr: 80801066 Next_arg1: 86fd1370
+[INFO | tyche::riscv::init] MIP: 8 MIE: 8 MSTATUS: a00000000 MEDELEG: f0b509 MIDELEG: 1666
+[INFO | riscv_pmp] Hart 0 PMP Index: 0  PMP CFG: 10011000 PMP ADDR: 2001ffff
+[INFO | riscv_pmp] Hart 0 PMP Index: 1  PMP CFG: 10011000 PMP ADDR: 1000fff
+[INFO | riscv_pmp] Hart 0 PMP Index: 2  PMP CFG: 0 PMP ADDR: 40000
+[INFO | riscv_pmp] Hart 0 PMP Index: 3  PMP CFG: 1111 PMP ADDR: 10000000
+[INFO | riscv_pmp] Hart 0 PMP Index: 4  PMP CFG: 0 PMP ADDR: 20200000
+[INFO | riscv_pmp] Hart 0 PMP Index: 5  PMP CFG: 1111 PMP ADDR: 200000000
+[INFO | riscv_pmp] Hart 0 PMP Index: 6  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 7  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 8  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 9  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 10  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 11  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 12  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 13  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 14  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 15  PMP CFG: 0 PMP ADDR: 0
+[INFO | tyche::riscv] HartID: 0 Mcycle : 2618224918205946 Minstret 2618224918206828 
+============= Launching Linux from Tyche =============
+
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete[    0.668783] syscon-poweroff poweroff: pm_power_off already claimed for sbi_srst_power_off
+
+probing a0 48534d
+Hart_suspend
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 504d55
+Returning from probe -2
+[TYCHE] SBI_base_handler complete[DEBUG | tyche::riscv::platform] Calling wrappper monitor call
+[DEBUG | tyche::riscv::platform] Monitor call success
+[DEBUG | tyche::riscv::platform] Calling wrappper monitor call
+[DEBUG | tyche::riscv::platform] Monitor call success
+[DEBUG | tyche::riscv::platform] Calling wrappper monitor call
+[DEBUG | tyche::riscv::platform] Monitor call success
+
+
+Boot took 0.80 seconds
+
+
+ ________                    __                 
+/        |                  /  |                
+########/__    __   _______ ## |____    ______  
+   ## | /  |  /  | /       |##      \  /      \ 
+   ## | ## |  ## |/#######/ #######  |/######  |
+   ## | ## |  ## |## |      ## |  ## |##    ## |
+   ## | ## \__## |## \_____ ## |  ## |########/ 
+   ## | ##    ## |##       |## |  ## |##       |
+   ##/   ####### | #######/ ##/   ##/  #######/ 
+        /  \__## |                              
+        ##    ##/                               
+         ######/                                
+
+
+Welcome to Tyche
+
+
+Failed to switch root to Ubuntu
+/bin/sh: can't access tty; job control turned off
+~ # 

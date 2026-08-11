@@ -1,0 +1,39 @@
+[package]
+name = "anchor"
+version = "0.1.0"
+edition = "2021"
+
+# See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
+
+[features]
+softcore = ["dep:softcore-asm-rv64"]
+loglevel-off = ["log/max_level_off"]
+xiangshan = []
+perf_counters = []
+
+[dependencies]
+uart_16550 = "0.3.0"
+spin = "0.5.2"
+log = "0.4.17"
+softcore-asm-rv64 = { git = "https://github.com/CharlyCst/softcore-asm.git", rev = "78791b0d", optional = true }
+
+[dev-dependencies]
+bolero = "0.13.4"
+
+[patch.crates-io]
+softcore-rv64 = { git = "https://github.com/CharlyCst/softcore-rs.git", rev = "6ebe7f9d"  }
+
+[profile.fuzz]
+inherits = "dev"
+opt-level = 3
+incremental = false
+codegen-units = 1
+panic = "abort"
+overflow-checks = true
+
+[lints.clippy]
+uninlined_format_args = "allow"
+result_unit_err = "allow"
+
+[lints.rust]
+unexpected_cfgs = { level = "warn", check-cfg = ['cfg(kani)'] }

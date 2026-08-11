@@ -1,0 +1,710 @@
+diff --git a/backends/tpm/tpm_backend.c b/backends/tpm/tpm_backend.c
+index 485a20b9e0..ead20b17fd 100644
+--- a/backends/tpm/tpm_backend.c
++++ b/backends/tpm/tpm_backend.c
+@@ -174,6 +174,22 @@ TPMInfo *tpm_backend_query_tpm(TPMBackend *s)
+     return info;
+ }
+ 
++void tpm_backend_hash_start(TPMBackend *s){
++    TPMBackendClass *k = TPM_BACKEND_GET_CLASS(s);
++
++    k->start_hash(s);
++}
++
++void tpm_backend_hash_data(TPMBackend *s, uint8_t* data, size_t sdata){
++    TPMBackendClass *k = TPM_BACKEND_GET_CLASS(s);
++    k->hash_data(s,data, sdata);
++}
++
++void tpm_backend_hash_end(TPMBackend *s){
++    TPMBackendClass *k = TPM_BACKEND_GET_CLASS(s);;
++    k->end_hash(s);
++}
++
+ static void tpm_backend_instance_finalize(Object *obj)
+ {
+     TPMBackend *s = TPM_BACKEND(obj);
+diff --git a/backends/tpm/tpm_emulator.c b/backends/tpm/tpm_emulator.c
+index aa05dab6ae..8f4142567d 100644
+--- a/backends/tpm/tpm_emulator.c
++++ b/backends/tpm/tpm_emulator.c
+@@ -697,6 +697,46 @@ static TpmTypeOptions *tpm_emulator_get_tpm_options(TPMBackend *tb)
+     return options;
+ }
+ 
++static int tpm_emulator_hash_start(TPMBackend *tb)
++{
++    TPMEmulator *tpm_emu = TPM_EMULATOR(tb);
++    ptm_res res;
++    if (tpm_emulator_ctrlcmd(tpm_emu, CMD_HASH_START, &res, 0, sizeof(ptm_res), sizeof(res)) < 0) {
++        error_report("tpm-emulator: Could not start hashing on locality 4 :  %s",
++                     strerror(errno));
++        return -1;
++    }
++    return 0;
++}
++
++static int tpm_emulator_hash_data(TPMBackend *tb, uint8_t * data, size_t sdata)
++{
++    TPMEmulator *tpm_emu = TPM_EMULATOR(tb);
++    ptm_hdata dat;
++    dat.u.req.length = cpu_to_be32((uint32_t )sdata);
++    memset(dat.u.req.data, 0, sdata);
++    memcpy(dat.u.req.data, data, sdata);
++    uint64_t in_size = sizeof(uint32_t) + sdata*sizeof(uint8_t);
++    if (tpm_emulator_ctrlcmd(tpm_emu, CMD_HASH_DATA, &dat, in_size, sizeof(dat.u.resp.tpm_result), sizeof(ptm_res))< 0) {
++        error_report("tpm-emulator: Could not hash data on locality 4 :  %s",
++                     strerror(errno));
++        return -1;
++    }
++    return 0;
++}
++
++static int tpm_emulator_end_hash(TPMBackend *tb)
++{
++    TPMEmulator *tpm_emu = TPM_EMULATOR(tb);
++    ptm_res res;
++    if (tpm_emulator_ctrlcmd(tpm_emu, CMD_HASH_END, &res, 0, sizeof(ptm_res), sizeof(res)) < 0) {
++        error_report("tpm-emulator: Could not end hashing on locality 4 :  %s",
++                     strerror(errno));
++        return -1;
++    }
++    return 0;
++}
++
+ static const QemuOptDesc tpm_emulator_cmdline_opts[] = {
+     TPM_STANDARD_CMDLINE_OPTS,
+     {
+@@ -1071,6 +1111,9 @@ static void tpm_emulator_class_init(ObjectClass *klass, void *data)
+     tbc->get_tpm_version = tpm_emulator_get_tpm_version;
+     tbc->get_buffer_size = tpm_emulator_get_buffer_size;
+     tbc->get_tpm_options = tpm_emulator_get_tpm_options;
++    tbc->start_hash = tpm_emulator_hash_start;
++    tbc->hash_data = tpm_emulator_hash_data;
++    tbc->end_hash = tpm_emulator_end_hash;
+ 
+     tbc->handle_request = tpm_emulator_handle_request;
+ }
+diff --git a/build_qemu.sh b/build_qemu.sh
+new file mode 100755
+index 0000000000..d0143abdc4
+--- /dev/null
++++ b/build_qemu.sh
+@@ -0,0 +1,5 @@
++mkdir -p qemu/build/
++cd qemu/build/
++CFLAGS="-Wno-error -fPIE" ../configure --target-list=riscv64-softmmu || exit
++make -j $(nproc)
++cd ../../
+diff --git a/build_qemu_debug.sh b/build_qemu_debug.sh
+new file mode 100755
+index 0000000000..14e1265850
+--- /dev/null
++++ b/build_qemu_debug.sh
+@@ -0,0 +1,5 @@
++cd qemu/build/
++make clean
++CFLAGS="-Wno-error -fPIC" ../configure --target-list=riscv64-softmmu --enable-debug --disable-pie || exit
++make -j $(nproc)
++cd ../../
+diff --git a/configure b/configure
+index 18336376bf..5444c5e85d 100755
+--- a/configure
++++ b/configure
+@@ -272,7 +272,7 @@ cfi="false"
+ # Meson has PIE as a boolean rather than enabled/disabled/auto,
+ # and we also need to check for -static-pie before Meson runs
+ # which requires knowing whether --static is enabled.
+-pie=""
++pie="no"
+ static="no"
+ 
+ # Preferred compiler:
+diff --git a/hw/tpm/tpm_tis_common.c b/hw/tpm/tpm_tis_common.c
+index 1bfa28bfd9..d16c77414d 100644
+--- a/hw/tpm/tpm_tis_common.c
++++ b/hw/tpm/tpm_tis_common.c
+@@ -20,7 +20,7 @@
+  * specification.
+  *
+  * TPM TIS for TPM 2 implementation following TCG PC Client Platform
+- * TPM Profile (PTP) Specification, Family 2.0, Revision 00.43
++ * TPM Profile (PTP) Specification, Familiy 2.0, Revision 00.43
+  */
+ #include "qemu/osdep.h"
+ #include "hw/irq.h"
+@@ -42,6 +42,10 @@
+ #include "tpm_tis.h"
+ 
+ #define DEBUG_TIS 0
++#define HDATA_BUFFER_SIZE 4096
++uint8_t hash_started = 0;
++uint8_t hdata[HDATA_BUFFER_SIZE] = {0};
++int pending_data_size = 0;
+ 
+ /* local prototypes */
+ 
+@@ -486,7 +490,7 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+ 
+     if (locty == 4) {
+         trace_tpm_tis_mmio_write_locty4();
+-        return;
++        /*return;*/
+     }
+ 
+     if (tpm_backend_had_startup_error(s->be_driver)) {
+@@ -501,8 +505,34 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+     }
+ 
+     mask ^= 0xffffffff;
++    active_locty = s->active_locty;
+ 
+     switch (off) {
++    case TPM_TIS_HASH_START:
++        /* Hashing operations only permitted on locality 4 */
++        if (locty == 4){
++            /*Locality has to be 4 or None to consider a HASH_START command*/
++                tpm_backend_hash_start(s->be_driver);
++                hash_started = 1;
++                break;
++                }
++        break;
++    case TPM_TIS_HASH_END:
++        /* Hashing operations only permitted on locality 4 */
++        if (locty == 4){
++            /*Locality has to be 4 or None to consider a HASH_START command*/
++                if (active_locty != 4 && active_locty != TPM_TIS_NO_LOCALITY){
++                    break;
++                }
++
++                if (pending_data_size > 0) {
++                    tpm_backend_hash_data(s->be_driver, hdata, HDATA_BUFFER_SIZE);
++                }
++                tpm_backend_hash_end(s->be_driver);
++                hash_started = 0;
++                break;
++                }
++        break;
+     case TPM_TIS_REG_ACCESS:
+ 
+         if ((val & TPM_TIS_ACCESS_SEIZE)) {
+@@ -715,9 +745,6 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+     case TPM_TIS_REG_DATA_FIFO:
+     case TPM_TIS_REG_DATA_XFIFO ... TPM_TIS_REG_DATA_XFIFO_END:
+         /* data fifo */
+-        if (s->active_locty != locty) {
+-            break;
+-        }
+ 
+         if (s->loc[locty].state == TPM_TIS_STATE_IDLE ||
+             s->loc[locty].state == TPM_TIS_STATE_EXECUTION ||
+@@ -725,12 +752,22 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+             /* drop the byte */
+         } else {
+             trace_tpm_tis_mmio_write_data2send(val, size);
++            if (locty == 4){
++                if (hash_started) {
++                    if (pending_data_size + size < HDATA_BUFFER_SIZE) {
++                        memcpy(&(hdata[pending_data_size]), &val, size);
++                        pending_data_size += 4;
++		    }else{
++			tpm_backend_hash_data(s->be_driver, hdata, HDATA_BUFFER_SIZE);
++			pending_data_size = 0;
++		    }
++                }
++            }
+             if (s->loc[locty].state == TPM_TIS_STATE_READY) {
+                 s->loc[locty].state = TPM_TIS_STATE_RECEPTION;
+                 tpm_tis_sts_set(&s->loc[locty],
+                                 TPM_TIS_STS_EXPECT | TPM_TIS_STS_VALID);
+-            }
+-
++	    }
+             val >>= shift;
+             if (size > 4 - (addr & 0x3)) {
+                 /* prevent access beyond FIFO */
+@@ -745,8 +782,8 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+                     size--;
+                 } else {
+                     tpm_tis_sts_set(&s->loc[locty], TPM_TIS_STS_VALID);
+-                }
+-            }
++		}
++	    }
+ 
+             /* check for complete packet */
+             if (s->rw_offset > 5 &&
+diff --git a/include/hw/acpi/tpm.h b/include/hw/acpi/tpm.h
+index 579c45f5ba..48d6d877d2 100644
+--- a/include/hw/acpi/tpm.h
++++ b/include/hw/acpi/tpm.h
+@@ -38,6 +38,8 @@
+ #define TPM_TIS_REG_INT_STATUS            0x10
+ #define TPM_TIS_REG_INTF_CAPABILITY       0x14
+ #define TPM_TIS_REG_STS                   0x18
++#define TPM_TIS_HASH_START		  0x28
++#define TPM_TIS_HASH_END		  0x20
+ #define TPM_TIS_REG_DATA_FIFO             0x24
+ #define TPM_TIS_REG_INTERFACE_ID          0x30
+ #define TPM_TIS_REG_DATA_XFIFO            0x80
+diff --git a/include/sysemu/tpm_backend.h b/include/sysemu/tpm_backend.h
+index 7fabafefee..41cd50420d 100644
+--- a/include/sysemu/tpm_backend.h
++++ b/include/sysemu/tpm_backend.h
+@@ -79,6 +79,13 @@ struct TPMBackendClass {
+ 
+     TpmTypeOptions *(*get_tpm_options)(TPMBackend *t);
+ 
++    /* locality 4 restricted operations */
++    int (*start_hash)(TPMBackend *t);
++
++    int (*hash_data) (TPMBackend *t, uint8_t * data_p, size_t dsize);
++
++    int (*end_hash) (TPMBackend *t);
++
+     void (*handle_request)(TPMBackend *s, TPMBackendCmd *cmd, Error **errp);
+ };
+ 
+@@ -211,6 +218,12 @@ TPMInfo *tpm_backend_query_tpm(TPMBackend *s);
+ 
+ TPMBackend *qemu_find_tpm_be(const char *id);
+ 
++void tpm_backend_hash_start(TPMBackend *s);
++
++void tpm_backend_hash_data(TPMBackend *s, uint8_t* data, size_t sdata);
++
++void tpm_backend_hash_end(TPMBackend *s);
++
+ #endif /* CONFIG_TPM */
+ 
+ #endif /* TPM_BACKEND_H */
+diff --git a/target/riscv/cpu.c b/target/riscv/cpu.c
+index f219f0c3b5..7de09a4edc 100644
+--- a/target/riscv/cpu.c
++++ b/target/riscv/cpu.c
+@@ -1573,6 +1573,9 @@ const RISCVCPUMultiExtConfig riscv_cpu_extensions[] = {
+     MULTI_EXT_CFG_BOOL("zvksc", ext_zvksc, false),
+     MULTI_EXT_CFG_BOOL("zvksg", ext_zvksg, false),
+ 
++    /* FlashPoint M'-mode extension */
++    MULTI_EXT_CFG_BOOL("xflashpoint", ext_xflashpoint, false),   // x for research prototype 
++
+     DEFINE_PROP_END_OF_LIST(),
+ };
+ 
+diff --git a/target/riscv/cpu_cfg.h b/target/riscv/cpu_cfg.h
+index 59d6fc445d..8f290e9d38 100644
+--- a/target/riscv/cpu_cfg.h
++++ b/target/riscv/cpu_cfg.h
+@@ -163,6 +163,9 @@ struct RISCVCPUConfig {
+     bool ext_xtheadsync;
+     bool ext_XVentanaCondOps;
+ 
++    /* FlashPoint Extension */
++    bool ext_xflashpoint;
++
+     uint32_t pmu_mask;
+     uint16_t vlenb;
+     uint16_t elen;
+diff --git a/target/riscv/cpu_helper.c b/target/riscv/cpu_helper.c
+index 45806f5ab0..288ab70143 100644
+--- a/target/riscv/cpu_helper.c
++++ b/target/riscv/cpu_helper.c
+@@ -34,6 +34,7 @@
+ #include "debug.h"
+ #include "tcg/oversized-guest.h"
+ #include "pmp.h"
++#include "flashpoint.h"
+ 
+ int riscv_env_mmu_index(CPURISCVState *env, bool ifetch)
+ {
+diff --git a/target/riscv/flashpoint.c b/target/riscv/flashpoint.c
+new file mode 100644
+index 0000000000..54f864953b
+--- /dev/null
++++ b/target/riscv/flashpoint.c
+@@ -0,0 +1,134 @@
++
++#include "qemu/osdep.h"
++#include "qemu/log.h"
++#include "qemu/qemu-print.h"
++#include "cpu.h"
++#include "cpu_bits.h"
++#include "flashpoint.h"
++#include "qemu/main-loop.h"
++#include "exec/exec-all.h"
++#include "pmp.h"
++
++static inline RISCVException riscv_xflashpoint_check(CPURISCVState *env) {
++    /* ensure the FlashPoint (and PMP) extension is enabled */
++    if (!riscv_cpu_cfg(env)->ext_xflashpoint) {
++        return RISCV_EXCP_ILLEGAL_INST;
++    }
++    return RISCV_EXCP_NONE;
++}
++
++static inline int pmp_is_locked(CPURISCVState *env, uint32_t pmp_index)
++{
++    /* mseccfg.RLB is set */
++    if (MSECCFG_RLB_ISSET(env)) {
++        return 0;
++    }
++
++    if (env->pmp_state.pmp[pmp_index].cfg_reg & PMP_LOCK) {
++        return 1;
++    }
++
++    /* Top PMP has no 'next' to check */
++    if ((pmp_index + 1u) >= MAX_RISCV_PMPS) {
++        return 0;
++    }
++
++    return 0;
++}
++
++/*
++ * Accessor method to extract address matching type 'a field' from cfg reg
++ */
++static inline uint8_t pmp_get_a_field(uint8_t cfg)
++{
++    uint8_t a = cfg >> 3;
++    return a & 0x3;
++}
++
++int riscv_exit_anchor(CPURISCVState *env, target_ulong jump_address, target_ulong _unused) {
++    /* jump_address: address to jump to after locking the pmp entry 0 */ 
++
++    RISCVException ret = riscv_xflashpoint_check(env);
++    if (ret != RISCV_EXCP_NONE) {
++        return ret;
++    }
++
++    if (pmp_get_a_field(env->pmp_state.pmp[0].cfg_reg) == PMP_AMATCH_OFF && pmp_get_a_field(env->pmp_state.pmp[1].cfg_reg) != PMP_AMATCH_TOR) {
++        qemu_printf(
++            "pmp locking - PMP entry 0 is not configured\n");
++        return RISCV_EXCP_ILLEGAL_INST; 
++    }
++
++    // Check that ePMP is disabled! 
++    if (MSECCFG_RLB_ISSET(env) || MSECCFG_MML_ISSET(env) || MSECCFG_MMWP_ISSET(env)) { 
++        qemu_printf(
++            "ePMP is enabled\n");
++        return RISCV_EXCP_ILLEGAL_INST; 
++    }
++
++    // Lock the first entry 
++    
++    if (pmp_get_a_field(env->pmp_state.pmp[0].cfg_reg) != PMP_AMATCH_OFF) {
++        env->pmp_state.pmp[0].cfg_reg |= PMP_LOCK;
++    } else if (pmp_get_a_field(env->pmp_state.pmp[1].cfg_reg) == PMP_AMATCH_TOR) {
++        // If TOR and Locked, writes to -1 should be ignored as per the spec
++        env->pmp_state.pmp[0].cfg_reg |= PMP_LOCK;
++        env->pmp_state.pmp[1].cfg_reg |= PMP_LOCK;
++    } else {
++        //THIS SHOULD NEVER HAPPEN 
++        assert(0);
++    }
++
++    return 0; 
++}
++
++
++int riscv_enter_anchor(CPURISCVState *env, target_ulong exit_address, target_ulong exit_region_size, target_ulong* anchor_entry_address) {
++
++    RISCVException ret = riscv_xflashpoint_check(env);
++    if (ret != RISCV_EXCP_NONE) {
++        return ret;
++    }
++
++    // Check that ePMP is disabled! 
++    if (MSECCFG_RLB_ISSET(env) || MSECCFG_MML_ISSET(env) || MSECCFG_MMWP_ISSET(env)) { 
++        qemu_printf(
++            "ePMP is enabled\n");
++            return -1; 
++    }
++
++    /* 
++    if (!pmp_is_locked(env, pmp_index)) {
++        // This is an error because if the PMP entry is not locked, you cannot unlock and shouldn't jump... 
++        qemu_printf(
++            "unlock attempt on an unlocked PMP entry\n");
++            return -1; 
++    } */ 
++
++    if (pmp_get_a_field(env->pmp_state.pmp[0].cfg_reg) == PMP_AMATCH_OFF && pmp_get_a_field(env->pmp_state.pmp[1].cfg_reg) != PMP_AMATCH_TOR) {
++        qemu_printf(
++            "pmp locking - PMP entry 0 is not configured\n");
++        return RISCV_EXCP_ILLEGAL_INST; 
++    }
++
++    // Unlock all the entries
++    for (int pmp_index = 0; pmp_index < MAX_RISCV_PMPS; pmp_index++) {
++        if (pmp_is_locked(env, pmp_index)) {
++            env->pmp_state.pmp[pmp_index].cfg_reg &= ~(PMP_LOCK);
++        }
++    }
++
++    // Disable interrupts
++    env->mstatus &= ~(MSTATUS_MIE);
++
++    if (pmp_get_a_field(env->pmp_state.pmp[0].cfg_reg) != PMP_AMATCH_OFF) {
++        *anchor_entry_address = env->pmp_state.addr[0].sa;
++    } else if (pmp_get_a_field(env->pmp_state.pmp[1].cfg_reg) == PMP_AMATCH_TOR) {
++        *anchor_entry_address = env->pmp_state.addr[1].sa;
++    } else {
++        //THIS SHOULD NEVER HAPPEN 
++        assert(0);
++    }
++
++    return 0;
++}
+diff --git a/target/riscv/flashpoint.h b/target/riscv/flashpoint.h
+new file mode 100644
+index 0000000000..786f0f8b31
+--- /dev/null
++++ b/target/riscv/flashpoint.h
+@@ -0,0 +1,8 @@
++/* 
++ *  FlashPoint ISA extension
++*/
++
++#include "cpu.h"
++
++int riscv_exit_anchor(CPURISCVState *env, target_ulong jump_address, target_ulong _unused);
++int riscv_enter_anchor(CPURISCVState *env, target_ulong exit_address, target_ulong exit_region_size, target_ulong* anchor_entry_address);
+diff --git a/target/riscv/helper.h b/target/riscv/helper.h
+index 451261ce5a..84ac19401c 100644
+--- a/target/riscv/helper.h
++++ b/target/riscv/helper.h
+@@ -121,6 +121,10 @@ DEF_HELPER_2(cbo_clean_flush, void, env, tl)
+ DEF_HELPER_2(cbo_inval, void, env, tl)
+ DEF_HELPER_2(cbo_zero, void, env, tl)
+ 
++/* FlashPoint instruction helpers */
++DEF_HELPER_3(exit_anchor, void, env, tl, tl)
++DEF_HELPER_3(enter_anchor, tl, env, tl, tl)
++
+ /* Special functions */
+ DEF_HELPER_2(csrr, tl, env, int)
+ DEF_HELPER_3(csrw, void, env, int, tl)
+diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
+index e9139ec1b9..c13aa5c0f4 100644
+--- a/target/riscv/insn32.decode
++++ b/target/riscv/insn32.decode
+@@ -190,6 +190,8 @@ subw     0100000 .....  ..... 000 ..... 0111011 @r
+ sllw     0000000 .....  ..... 001 ..... 0111011 @r
+ srlw     0000000 .....  ..... 101 ..... 0111011 @r
+ sraw     0100000 .....  ..... 101 ..... 0111011 @r
++exit_anchor     0000000  .....  ..... 000 00000 0101011 @r2_s
++enter_anchor   0000000  .....  ..... 001 00000 0101011 @r2_s
+ 
+ # *** RV128I Base Instruction Set (in addition to RV64I) ***
+ ldu      ............   ..... 111 ..... 0000011 @i
+@@ -1062,4 +1064,4 @@ amomax_h   10100 . . ..... ..... 001 ..... 0101111 @atom_st
+ amominu_h  11000 . . ..... ..... 001 ..... 0101111 @atom_st
+ amomaxu_h  11100 . . ..... ..... 001 ..... 0101111 @atom_st
+ amocas_b    00101 . . ..... ..... 000 ..... 0101111 @atom_st
+-amocas_h    00101 . . ..... ..... 001 ..... 0101111 @atom_st
++amocas_h    00101 . . ..... ..... 001 ..... 0101111 @atom_st
+\ No newline at end of file
+diff --git a/target/riscv/insn_trans/trans_rvi.c.inc b/target/riscv/insn_trans/trans_rvi.c.inc
+index 96c218a9d7..777e2564d3 100644
+--- a/target/riscv/insn_trans/trans_rvi.c.inc
++++ b/target/riscv/insn_trans/trans_rvi.c.inc
+@@ -18,6 +18,8 @@
+  * this program.  If not, see <http://www.gnu.org/licenses/>.
+  */
+ 
++#include "qemu/log.h"
++
+ static bool trans_illegal(DisasContext *ctx, arg_empty *a)
+ {
+     gen_exception_illegal(ctx);
+@@ -1142,3 +1144,111 @@ static bool trans_csrrci(DisasContext *ctx, arg_csrrci * a)
+                              ctx->zero, ctx->zero, mask, ctx->zero);
+     }
+ }
++
++static bool trans_exit_anchor(DisasContext *ctx, arg_exit_anchor *a)
++{
++    qemu_log_mask(LOG_GUEST_ERROR, " \n\n **** Executing Trans_exit_anchor! Yay! **** \n\n");
++    gen_helper_exit_anchor(tcg_env, get_gpr(ctx, a->rs1, EXT_NONE), get_gpr(ctx, a->rs2, EXT_NONE)); 
++
++    // trans_jalr code 
++    TCGLabel *misaligned = NULL;
++    TCGv target_pc = tcg_temp_new();
++    TCGv succ_pc = dest_gpr(ctx, 0);
++
++    // Jump address is the only operand 
++    tcg_gen_addi_tl(target_pc, get_gpr(ctx, a->rs1, EXT_NONE), 0);
++    tcg_gen_andi_tl(target_pc, target_pc, (target_ulong)-2);
++
++    if (get_xl(ctx) == MXL_RV32) {
++        tcg_gen_ext32s_tl(target_pc, target_pc);
++    }
++
++    if (!has_ext(ctx, RVC) && !ctx->cfg_ptr->ext_zca) {
++        TCGv t0 = tcg_temp_new();
++
++        misaligned = gen_new_label();
++        tcg_gen_andi_tl(t0, target_pc, 0x2);
++        tcg_gen_brcondi_tl(TCG_COND_NE, t0, 0x0, misaligned);
++    }
++
++    gen_pc_plus_diff(succ_pc, ctx, ctx->cur_insn_len);
++    gen_set_gpr(ctx, 0, succ_pc);
++
++    tcg_gen_mov_tl(cpu_pc, target_pc);
++    if (ctx->fcfi_enabled) {
++        /*
++         * return from functions (i.e. rs1 == xRA || rs1 == xT0) are not
++         * tracked. zicfilp introduces sw guarded branch as well. sw guarded
++         * branch are not tracked. rs1 == xT2 is a sw guarded branch.
++         */
++        if (a->rs2 != xRA && a->rs2 != xT0 && a->rs2 != xT2) {
++            tcg_gen_st8_tl(tcg_constant_tl(1),
++                          tcg_env, offsetof(CPURISCVState, elp));
++        }
++    }
++
++    lookup_and_goto_ptr(ctx);
++
++    if (misaligned) {
++        gen_set_label(misaligned);
++        gen_exception_inst_addr_mis(ctx, target_pc);
++    }
++    ctx->base.is_jmp = DISAS_NORETURN;
++    return true;
++}
++
++static bool trans_enter_anchor(DisasContext *ctx, arg_enter_anchor *a)
++{
++    qemu_log_mask(LOG_GUEST_ERROR, " \n\n **** Executing Trans_enter_anchor! Yay! **** \n\n");
++    TCGv dest = tcg_temp_new(); 
++
++    // TODO: Enter anchor helper doesn't need rs2?
++    gen_helper_enter_anchor(dest, tcg_env, get_gpr(ctx, a->rs1, EXT_NONE), get_gpr(ctx, a->rs2, EXT_NONE)); 
++
++    // trans_jalr code 
++    // TODO: Add rd to lock and unlock operands, simply putting 0 can cause problems? No I think it's fine, treats as no return dest reg 
++    TCGLabel *misaligned = NULL;
++    TCGv target_pc = tcg_temp_new();
++    TCGv succ_pc = dest_gpr(ctx, 0);
++
++    //tcg_gen_addi_tl(target_pc, get_gpr(ctx, dest, EXT_NONE), 0);
++    tcg_gen_addi_tl(target_pc, dest, 0);
++    tcg_gen_andi_tl(target_pc, target_pc, (target_ulong)-2);
++
++    if (get_xl(ctx) == MXL_RV32) {
++        tcg_gen_ext32s_tl(target_pc, target_pc);
++    }
++
++    if (!has_ext(ctx, RVC) && !ctx->cfg_ptr->ext_zca) {
++        TCGv t0 = tcg_temp_new();
++
++        misaligned = gen_new_label();
++        tcg_gen_andi_tl(t0, target_pc, 0x2);
++        tcg_gen_brcondi_tl(TCG_COND_NE, t0, 0x0, misaligned);
++    }
++
++    gen_pc_plus_diff(succ_pc, ctx, ctx->cur_insn_len);
++    gen_set_gpr(ctx, 0, succ_pc);
++
++    tcg_gen_mov_tl(cpu_pc, target_pc);
++    if (ctx->fcfi_enabled) {
++        /*
++         * return from functions (i.e. rs1 == xRA || rs1 == xT0) are not
++         * tracked. zicfilp introduces sw guarded branch as well. sw guarded
++         * branch are not tracked. rs1 == xT2 is a sw guarded branch.
++         */
++        if (a->rs2 != xRA && a->rs2 != xT0 && a->rs2 != xT2) {
++            tcg_gen_st8_tl(tcg_constant_tl(1),
++                          tcg_env, offsetof(CPURISCVState, elp));
++        }
++    }
++
++    lookup_and_goto_ptr(ctx);
++
++    if (misaligned) {
++        gen_set_label(misaligned);
++        gen_exception_inst_addr_mis(ctx, target_pc);
++    }
++    ctx->base.is_jmp = DISAS_NORETURN;
++    return true;
++}
+diff --git a/target/riscv/meson.build b/target/riscv/meson.build
+index a4bd61e52a..71d42787d3 100644
+--- a/target/riscv/meson.build
++++ b/target/riscv/meson.build
+@@ -15,6 +15,7 @@ riscv_ss.add(files(
+   'fpu_helper.c',
+   'gdbstub.c',
+   'op_helper.c',
++  'flashpoint.c',
+   'vector_helper.c',
+   'vector_internals.c',
+   'bitmanip_helper.c',
+@@ -38,6 +39,10 @@ riscv_system_ss.add(files(
+   'riscv-qmp-cmds.c',
+ ))
+ 
++#riscv_ss.add(when: 'TARGET_RISCV64', if_true: files(
++#   'flashpoint.c'
++#))
++
+ subdir('tcg')
+ subdir('kvm')
+ 
+diff --git a/target/riscv/op_helper.c b/target/riscv/op_helper.c
+index eddedacf4b..44ab327404 100644
+--- a/target/riscv/op_helper.c
++++ b/target/riscv/op_helper.c
+@@ -24,6 +24,7 @@
+ #include "exec/exec-all.h"
+ #include "exec/cpu_ldst.h"
+ #include "exec/helper-proto.h"
++#include "flashpoint.h"
+ 
+ /* Exceptions processing helpers */
+ G_NORETURN void riscv_raise_exception(CPURISCVState *env,
+@@ -124,6 +125,39 @@ target_ulong helper_csrrw_i128(CPURISCVState *env, int csr,
+ }
+ 
+ 
++/* FlashPoint instruction helpers */
++
++void helper_exit_anchor(CPURISCVState *env,
++    target_ulong jump_address, target_ulong _unused)
++{
++    if (!(env->priv == PRV_M)) {
++        riscv_raise_exception(env, RISCV_EXCP_ILLEGAL_INST, GETPC());
++    }
++    
++    /* jump_address: address to jump to after locking the pmp entry 0 */
++    int ret = riscv_exit_anchor(env, jump_address, _unused);
++ 
++    if(ret != 0) {
++        riscv_raise_exception(env, ret, GETPC());
++    }
++}
++
++target_ulong helper_enter_anchor(CPURISCVState *env,
++    target_ulong exit_address, target_ulong exit_region_size)
++{
++    if (!(env->priv == PRV_M)) {
++        riscv_raise_exception(env, RISCV_EXCP_ILLEGAL_INST, GETPC());
++    }
++    
++    target_ulong anchor_entry_addr = 0;
++    int ret = riscv_enter_anchor(env, exit_address, exit_region_size, &anchor_entry_addr);
++ 
++    if(ret != 0) {
++        riscv_raise_exception(env, ret, GETPC());
++    }
++    return anchor_entry_addr;
++}
++
+ /*
+  * check_zicbo_envcfg
+  *

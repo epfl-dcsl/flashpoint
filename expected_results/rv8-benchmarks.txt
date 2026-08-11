@@ -1,0 +1,17 @@
+/rv8 # bash bench2.sh bench all native-riscv64 O3 1
+benchmark  : all
+target     : native-riscv64
+opt        : O3
+runs       : 1
+
+----------------------------------------------------------------------
+benchmark       | system               | opt | runtime  | metric
+----------------------------------------------------------------------
+aes             | native-riscv64       | O3  | 34.059010000s | <not
+bigint          | native-riscv64       | O3  | 28.184814000s | <not
+dhrystone       | native-riscv64       | O3  | 9.305409000s | <not
+miniz           | native-riscv64       | O3  | 66.247790000s | <not
+norx            | native-riscv64       | O3  | 18.991811000s | <not
+primes          | native-riscv64       | O3  | 69.762359000s | <not
+qsort           | native-riscv64       | O3  | 48.245155000s | <not
+sha512          | native-riscv64       | O3  | 20.565754000s | <not

@@ -1,0 +1,19 @@
+/target/
+/tpm/
+/xiangshan/Image*
+/xiangshan/*.bin
+/anchor/src/__fuzz__
+
+*.o
+*.a
+
+/bindings/
+
+# Byproducts
+*compile_commands.json
+*.cache/
+
+.DS_Store
+
+# vs code folder
+.vscode/*

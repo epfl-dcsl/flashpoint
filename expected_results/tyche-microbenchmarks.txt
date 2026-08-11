@@ -1,0 +1,56 @@
+/tychebench # sh riscv64-install-drivers.sh
+/tychebench # cd benchmarks/
+/tychebench/benchmarks # CREATION=TRUE CARVES=TRUE OUTER=10 INNER=1 ./runbench
+Running with sdk-tyche
+Selected benchmarks: creation
+Selected sizes: [ 8k 16k 32k 64k 128k 256k 512k 1M ]
+Selected workloads:  carves
+Running 1 (outer) times 1 (inner) repetitions/run
+Creation[8k -> 1M] run on bin/carve/ showing 1 (outer) averages of 1 (inner) create/delete
+name[iter #]             creation (us)            deletion (us)
+bin/carve//8k            10571.000                1247.000
+bin/carve//16k           6759.000                 1217.000
+bin/carve//32k           7118.000                 1224.000
+bin/carve//64k           11770.000                1377.000
+bin/carve//128k          8723.000                 1325.000
+bin/carve//256k          11017.000                1385.000
+bin/carve//512k          19030.000                1417.000
+bin/carve//1M            26637.000                1678.000
+All done!
+/tychebench/benchmarks # CREATION=TRUE SANDBOXES=TRUE OUTER=10 INNER=1 ./runbenc
+h
+Running with sdk-tyche
+Selected benchmarks: creation
+Selected sizes: [ 8k 16k 32k 64k 128k 256k 512k 1M ]
+Selected workloads:  sandboxes
+Running 1 (outer) times 1 (inner) repetitions/run
+Creation[8k -> 1M] run on bin/sandboxes/ showing 1 (outer) averages of 1 (inner) create/delete
+name[iter #]             creation (us)            deletion (us)
+bin/sandboxes//8k        10463.000                1151.000
+bin/sandboxes//16k       6683.000                 1058.000
+bin/sandboxes//32k       6987.000                 1087.000
+bin/sandboxes//64k       11543.000                1254.000
+bin/sandboxes//128k      8554.000                 1197.000
+bin/sandboxes//256k      10811.000                1271.000
+bin/sandboxes//512k      18925.000                1278.000
+bin/sandboxes//1M        26324.000                1531.000
+All done!
+/tychebench/benchmarks # CREATION=TRUE ENCLAVES=TRUE OUTER=10 INNER=1 ./runbench
+
+Running with sdk-tyche
+Selected benchmarks: creation
+Selected sizes: [ 8k 16k 32k 64k 128k 256k 512k 1M ]
+Selected workloads:  enclaves
+Running 1 (outer) times 1 (inner) repetitions/run
+Creation[8k -> 1M] run on bin/enclaves/ showing 1 (outer) averages of 1 (inner) create/delete
+name[iter #]             creation (us)            deletion (us)
+bin/enclaves//8k         25487.000                1230.000
+bin/enclaves//16k        43736.000                1389.000
+bin/enclaves//32k        65543.000                1470.000
+bin/enclaves//64k        128973.000               2059.000
+bin/enclaves//128k       253522.000               2992.000
+bin/enclaves//256k       496067.000               4909.000
+bin/enclaves//512k       980887.000               8934.000
+bin/enclaves//1M         1866900.000              16294.000
+All done!
+/tychebench/benchmarks #

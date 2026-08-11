@@ -1,0 +1,9 @@
+[submodule "qemu"]
+	path = qemu
+	url = https://github.com/qemu/qemu
+[submodule "tyche"]
+	path = tyche
+	url = git@github.com:epfl-dcsl/tyche-devel.git
+[submodule "sail-riscv"]
+	path = sail-riscv
+	url = git@github.com:riscv/sail-riscv.git

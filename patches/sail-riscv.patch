@@ -1,0 +1,210 @@
+diff --git a/model/CMakeLists.txt b/model/CMakeLists.txt
+index 8cf55df..d6ad676 100644
+--- a/model/CMakeLists.txt
++++ b/model/CMakeLists.txt
+@@ -197,6 +197,8 @@ foreach (xlen IN ITEMS 32 64)
+                 "main.sail"
+             )
+ 
++    	    message("The value of sail_srcs is: ${sail_srcs}")
++
+             # Convert to absolute paths, so we can run
+ 
+             # Generate C code from Sail model with & without RVFI-DII support.
+diff --git a/model/riscv_insts_base.sail b/model/riscv_insts_base.sail
+index 132e9d6..c42c4c6 100644
+--- a/model/riscv_insts_base.sail
++++ b/model/riscv_insts_base.sail
+@@ -606,6 +606,64 @@ function clause execute (FENCE_TSO(pred, succ)) = {
+ mapping clause assembly = FENCE_TSO(pred, succ)
+   <-> "fence.tso" ^ spc() ^ fence_bits(pred) ^ sep() ^ fence_bits(succ)
+ 
++/* ************************ FlashPoint ******************************** */
++union clause ast = ENTER_ANCHOR : (regidx, regidx)
++
++mapping clause encdec = ENTER_ANCHOR(rs1, rs2)
++  <-> 0b0000000 @ rs2 @ rs1 @ 0b001 @ 0b00000 @ 0b0101011
++
++function clause execute ENTER_ANCHOR(rs1, rs2) = {
++  if   cur_privilege != Machine
++  then { handle_illegal(); RETIRE_FAIL }
++  // Todo: illegal if smepmp is enabled
++  else {
++    // set next pc to PMPADDR 0 
++    match get_highest_priority_pmp_sa() {
++      Some(pmp0_sa) => { set_next_pc(pmp0_sa); 
++        // disable interrupts 
++        // Question: Should we do MPIE = MIE, in enter, and then, MIE = MPIE in exit 
++        // Which is similar to what happens in an ecall and mret ... 
++        mstatus[MIE]  = 0b0;
++        // unlock all PMPs 
++        unlock_all_pmps(); 
++        RETIRE_SUCCESS
++      },
++      None() => { handle_illegal(); RETIRE_FAIL },
++    } 
++  }
++}
++
++mapping clause assembly = ENTER_ANCHOR(rs1, rs2)
++  <-> "enter_anchor" ^ spc() ^ reg_name(rs1) ^ sep() ^ reg_name(rs2)
++
++
++/* ************************ FlashPoint ******************************** */
++union clause ast = EXIT_ANCHOR : (regidx, regidx)
++
++mapping clause encdec = EXIT_ANCHOR(rs1, rs2)
++  <-> 0b0000000 @ rs2 @ rs1 @ 0b000 @ 0b00000 @ 0b0101011
++
++function clause execute EXIT_ANCHOR(rs1, rs2) = {
++  if   cur_privilege != Machine
++  then { handle_illegal(); RETIRE_FAIL }
++  // Todo: illegal if smepmp is enabled 
++  else {
++    // lock PMP 0 
++    if lock_highest_priority_pmp()
++    then {
++      // set next pc to exit addr
++      set_next_pc(X(rs1));
++      RETIRE_SUCCESS
++    } else {
++      handle_illegal(); RETIRE_FAIL
++    }
++  }
++}
++
++mapping clause assembly = EXIT_ANCHOR(rs1, rs2)
++  <-> "exit_anchor" ^ spc() ^ reg_name(rs1) ^ sep() ^ reg_name(rs2)
++
++
+ /* ****************************************************************** */
+ union clause ast = ECALL : unit
+ 
+diff --git a/model/riscv_pmp_control.sail b/model/riscv_pmp_control.sail
+index c662da2..a0b0bc0 100644
+--- a/model/riscv_pmp_control.sail
++++ b/model/riscv_pmp_control.sail
+@@ -126,6 +126,60 @@ function pmpCheck forall 'n, 'n > 0. (addr: physaddr, width: int('n), acc: Acces
+   if priv == Machine then None() else Some(accessToFault(acc))
+ }
+ 
++function lock_highest_priority_pmp() -> bool = {
++  assert(
++    sys_pmp_count() == 16 | sys_pmp_count() == 64,
++    "sys_pmp_count() must be non-zero: 16, or 64"
++  );
++
++  match pmpAddrMatchType_of_bits(pmpcfg_n[0][A]) {
++    NAPOT => { pmpcfg_n[0][L] = 0b1; return true; },
++    OFF   => { 
++      match pmpAddrMatchType_of_bits(pmpcfg_n[1][A]) {
++        TOR => { pmpcfg_n[1][L] = 0b1; return true; },
++        _   => { return false; },
++      }
++    },
++    _     => { return false; },
++  }
++}
++
++function unlock_all_pmps() -> unit = {
++  // This is the only way to unlock previously locked PMPs. 
++  // This should NOT be used outside of the enter_anchor instruction.
++  assert(
++    sys_pmp_count() == 16 | sys_pmp_count() == 64,
++    "sys_pmp_count() must be non-zero: 16, or 64"
++  );
++
++  foreach (i from 0 to 63) {
++    pmpcfg_n[i] = [pmpcfg_n[i] with L = 0b0];
++  };
++}
++
++function get_highest_priority_pmp_sa() -> option(xlenbits) = {
++  match pmpAddrMatchType_of_bits(pmpcfg_n[0][A]) {
++    NAPOT => { 
++      match pmpAddrRange(pmpcfg_n[0], pmpReadAddrReg(0), zeros()) {
++        Some(lo, hi) => return Some(lo),
++        _            => return None(),
++      }
++    },
++    OFF   => { 
++      match pmpAddrMatchType_of_bits(pmpcfg_n[1][A]) {
++        TOR => { 
++          match pmpAddrRange(pmpcfg_n[1], pmpReadAddrReg(1), pmpReadAddrReg(0)) {
++            Some(lo, hi) => return Some(lo),
++            _            => return None(),
++          } 
++        },
++        _   => { return None(); },
++      }
++    },
++    _     => { return None(); },
++  } 
++}
++
+ function init_pmp() -> unit = {
+   assert(
+     sys_pmp_count() == 0 | sys_pmp_count() == 16 | sys_pmp_count() == 64,
+diff --git a/model/riscv_sys_control.sail b/model/riscv_sys_control.sail
+index 6ac714f..768dbc5 100644
+--- a/model/riscv_sys_control.sail
++++ b/model/riscv_sys_control.sail
+@@ -312,8 +312,8 @@ function handle_interrupt(i : InterruptType, del_priv : Privilege) -> unit =
+ function init_sys() -> unit = {
+   cur_privilege = Machine;
+ 
+-  mhartid     = zeros();
+-  mconfigptr  = zeros();
++  //mhartid     = zeros();
++  //mconfigptr  = zeros();
+ 
+   misa[MXL] = architecture(if xlen == 32 then RV32 else RV64);
+   misa[A]   = 0b1;                             /* atomics */
+@@ -346,26 +346,26 @@ function init_sys() -> unit = {
+     SBE = 0b0,
+   ];
+ 
+-  mip.bits     = zeros();
+-  mie.bits     = zeros();
+-  mideleg.bits = zeros();
++  //mip.bits     = zeros();
++  //mie.bits     = zeros();
++  //mideleg.bits = zeros();
+   medeleg.bits = zeros();
+   mtvec.bits   = zeros();
+   mcause.bits  = zeros();
+-  mepc            = zeros();
+-  mtval           = zeros();
+-  mscratch        = zeros();
++  //mepc            = zeros();
++  //mtval           = zeros();
++  //mscratch        = zeros();
+ 
+-  mcycle          = zeros();
+-  mtime           = zeros();
++  //mcycle          = zeros();
++  //mtime           = zeros();
+ 
+-  mcounteren.bits = zeros();
++  //mcounteren.bits = zeros();
+ 
+-  minstret           = zeros();
++  //minstret           = zeros();
+   minstret_increment = true;
+ 
+-  menvcfg.bits = zeros();
+-  senvcfg.bits = zeros();
++  //menvcfg.bits = zeros();
++  //senvcfg.bits = zeros();
+   /* initialize vector csrs */
+   vstart             = zeros();
+   vl                 = zeros();
+@@ -379,7 +379,7 @@ function init_sys() -> unit = {
+   vtype[vlmul]     = 0b000;
+ 
+   // PMP's L and A fields are set to 0 on reset.
+-  init_pmp();
++  //init_pmp();
+ 
+   // log compatibility with spike
+   if   get_config_print_reg()
