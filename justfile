@@ -56,6 +56,23 @@ setup:
     @just _setup-swtpm
     @just _setup-qemu-apply-patch
 
+# Build QEMU, Anchor, TPM Driver, Tyche
+build-qemu-software:
+    cargo clean 
+    @just clean-tyche
+    @just build-qemu
+    @just build-anchor-qemu
+    @just build-tpm-driver-qemu
+    @just build-tyche-qemu
+
+# Build Anchor, TPM Driver, Tyche for XiangShan 
+build-xiangshan-software:
+    cargo clean 
+    @just clean-tyche
+    @just build-anchor-xiangshan
+    @just build-tpm-driver-xiangshan
+    @just build-tyche-xiangshan
+
 # Build QEMU with Flashpoint ISA extension 
 build-qemu:
 	./qemu/build_qemu.sh
@@ -111,6 +128,10 @@ build-tpm-driver-xiangshan:
 run-drtm-qemu:
     @just _start-tpm
     {{ qemu-path }} --no-reboot --nographic -M virt -cpu rv64,xflashpoint=on -bios {{ anchor_img_qemu }} -device {{ tpm-driver-loader }} -device {{ osbi-tyche-loader }} -smp 2 {{ tpm-dev }}
+
+# Clean tyche 
+clean-tyche: 
+    cd tyche && cargo clean
 
 # Apply Flashpoint ISA extension patch to sail-riscv 
 _setup-sail-riscv-with-patch:
@@ -182,3 +203,4 @@ _setup-rust-toolchain:
     rustup component add clippy --toolchain "$(cat rust-toolchain)"
     cargo install cargo-binutils
     cargo install --locked just
+

@@ -55,6 +55,7 @@ mod disabled {
 mod enabled {
     use crate::arch::{read_mcycle, read_minstret, RegisterArguments};
     use core::sync::atomic::{AtomicU64, Ordering};
+    use crate::perf_counters::{ENTER_UNTRUSTED, EXIT_UNTRUSTED, ENTER_SM};
 
     const NB_CHECKPOINTS: usize = 13;
 
@@ -102,5 +103,10 @@ mod enabled {
                 MINSTRET[cp].load(Ordering::SeqCst)
             );
         }
+        let instructions_in_anchor: u64 = MINSTRET[ENTER_UNTRUSTED].load(Ordering::SeqCst) + MINSTRET[EXIT_UNTRUSTED].load(Ordering::SeqCst) - MINSTRET[ENTER_SM].load(Ordering::SeqCst); 
+        let cycles_in_anchor: u64 = MCYCLE[ENTER_UNTRUSTED].load(Ordering::SeqCst) + MCYCLE[EXIT_UNTRUSTED].load(Ordering::SeqCst) - MCYCLE[ENTER_SM].load(Ordering::SeqCst);
+        
+        //  before untrusted + before payload - after untrusted 
+        log::info!("Anchor execution: instructions: {} cycles: {}\n\n", instructions_in_anchor, cycles_in_anchor);
     }
 }
