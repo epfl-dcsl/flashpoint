@@ -7,7 +7,7 @@ use crate::arch::csr::*;
 use crate::pmp_static::cfg::{L, R, W, X};
 use crate::{
     write_pmp, DOMAINS, FIRMWARE_DOMAIN_ID, PMPADDR_TABLE, PMPCFG_TABLE, PMP_CFG_ENTRIES,
-    PMP_ENTRIES, TPM_DRIVER_DOMAIN_ID,
+    PMP_ENTRIES, TPM_DRIVER_SRTM_DOMAIN_ID, TPM_DRIVER_DRTM_DOMAIN_ID,
 };
 use crate::{
     BOOT_HART_ID, COLD_BOOT, CORES_DONE_WITH_PMP_INIT, CORES_RETURNED_FROM_UNTRUSTED,
@@ -76,7 +76,7 @@ fn prepare_pmp(domain_id: usize) {
     SOFT_CORE.with_borrow_mut(|core| core.execute(raw::ast::EXIT_ANCHOR((X0, X0))));
 }
 
-fn prepare_anchor_coold_boot_boot_hart() {
+fn prepare_anchor_cold_boot_boot_hart() {
     reset_core(BOOT_HART_ID);
     HART_STATES[BOOT_HART_ID].store(COLD_BOOT, Ordering::SeqCst);
     CORES_DONE_WITH_PMP_INIT.store(1, Ordering::SeqCst);
@@ -85,7 +85,7 @@ fn prepare_anchor_coold_boot_boot_hart() {
     })
 }
 
-fn prepare_anchor_coold_boot_other_hart() {
+fn prepare_anchor_cold_boot_other_hart() {
     reset_core(OTHER_HART_ID);
     HART_STATES[OTHER_HART_ID].store(COLD_BOOT, Ordering::SeqCst);
     CORES_DONE_WITH_PMP_INIT.store(1, Ordering::SeqCst);
@@ -95,30 +95,30 @@ fn prepare_anchor_coold_boot_other_hart() {
     })
 }
 
-fn prepare_anchor_tpm1_done() {
+fn prepare_anchor_after_srtm() {
     reset_core(BOOT_HART_ID);
     HART_STATES[BOOT_HART_ID].store(AFTER_SRTM, Ordering::SeqCst);
-    prepare_pmp(TPM_DRIVER_DOMAIN_ID);
+    prepare_pmp(TPM_DRIVER_SRTM_DOMAIN_ID);
 }
 
-fn prepare_anchor_srtm_done_boot_hart() {
+fn prepare_anchor_after_untrusted_boot_hart() {
     reset_core(BOOT_HART_ID);
     HART_STATES[BOOT_HART_ID].store(AFTER_UNTRUSTED, Ordering::SeqCst);
     CORES_RETURNED_FROM_UNTRUSTED.store(1, Ordering::SeqCst);
     prepare_pmp(FIRMWARE_DOMAIN_ID);
 }
 
-fn prepare_anchor_srtm_done_other_hart() {
+fn prepare_anchor_after_untrusted_other_hart() {
     reset_core(OTHER_HART_ID);
     HART_STATES[OTHER_HART_ID].store(AFTER_UNTRUSTED, Ordering::SeqCst);
     HART_STATES[BOOT_HART_ID].store(AFTER_SM, Ordering::SeqCst);
     prepare_pmp(FIRMWARE_DOMAIN_ID);
 }
 
-fn prepare_anchor_tpm2_done() {
+fn prepare_anchor_after_drtm() {
     reset_core(BOOT_HART_ID);
     HART_STATES[BOOT_HART_ID].store(AFTER_DRTM, Ordering::SeqCst);
-    prepare_pmp(TPM_DRIVER_DOMAIN_ID);
+    prepare_pmp(TPM_DRIVER_DRTM_DOMAIN_ID);
 }
 
 fn reset_core(hartid: usize) {
@@ -350,11 +350,11 @@ fn read_write_csr() {
 #[test]
 fn test_cold_boot_boot() {
     reset_core(BOOT_HART_ID);
-    prepare_anchor_coold_boot_boot_hart();
+    prepare_anchor_cold_boot_boot_hart();
 
     _start();
 
-    verify_pmp(TPM_DRIVER_DOMAIN_ID, sanitize_address(0x8000000));
+    verify_pmp(TPM_DRIVER_SRTM_DOMAIN_ID, sanitize_address(0x8000000));
 }
 
 // ———————————————————————————————— Fuzzing ————————————————————————————————— //
@@ -362,11 +362,11 @@ fn test_cold_boot_boot() {
 #[test]
 fn fuzz_cold_boot_boot() {
     bolero::check!().with_type().cloned().for_each(|addr: u64| {
-        prepare_anchor_coold_boot_boot_hart();
+        prepare_anchor_cold_boot_boot_hart();
 
         _start();
 
-        verify_pmp(TPM_DRIVER_DOMAIN_ID, sanitize_address(addr));
+        verify_pmp(TPM_DRIVER_SRTM_DOMAIN_ID, sanitize_address(addr));
         assert_eq!(
             HART_STATES[BOOT_HART_ID].load(Ordering::SeqCst),
             AFTER_SRTM
@@ -377,7 +377,7 @@ fn fuzz_cold_boot_boot() {
 #[test]
 fn fuzz_cold_boot_other() {
     bolero::check!().with_type().cloned().for_each(|addr: u64| {
-        prepare_anchor_coold_boot_other_hart();
+        prepare_anchor_cold_boot_other_hart();
 
         _start();
 
@@ -390,12 +390,12 @@ fn fuzz_cold_boot_other() {
 }
 
 #[test]
-fn fuzz_tpm1_done() {
+fn fuzz_after_srtm() {
     bolero::check!()
         .with_type()
         .cloned()
         .for_each(|(addr, registers): (u64, [u64; 67])| {
-            prepare_anchor_tpm1_done();
+            prepare_anchor_after_srtm();
             havok_random(&registers);
 
             enter_anchor();
@@ -410,18 +410,18 @@ fn fuzz_tpm1_done() {
 }
 
 #[test]
-fn fuzz_srtm_done_boot() {
+fn fuzz_after_untrusted_boot() {
     bolero::check!()
         .with_type()
         .cloned()
         .for_each(|(addr, registers): (u64, [u64; 67])| {
-            prepare_anchor_srtm_done_boot_hart();
+            prepare_anchor_after_untrusted_boot_hart();
             havok_random(&registers);
 
             enter_anchor();
             _start();
 
-            verify_pmp(TPM_DRIVER_DOMAIN_ID, sanitize_address(addr));
+            verify_pmp(TPM_DRIVER_DRTM_DOMAIN_ID, sanitize_address(addr));
             assert_eq!(
                 HART_STATES[BOOT_HART_ID].load(Ordering::SeqCst),
                 AFTER_DRTM
@@ -430,12 +430,12 @@ fn fuzz_srtm_done_boot() {
 }
 
 #[test]
-fn fuzz_srtm_done_other() {
+fn fuzz_after_untrusted_other() {
     bolero::check!()
         .with_type()
         .cloned()
         .for_each(|(addr, registers): (u64, [u64; 67])| {
-            prepare_anchor_srtm_done_other_hart();
+            prepare_anchor_after_untrusted_other_hart();
             havok_random(&registers);
 
             enter_anchor();
@@ -450,12 +450,12 @@ fn fuzz_srtm_done_other() {
 }
 
 #[test]
-fn fuzz_tpm2_done() {
+fn fuzz_after_drtm() {
     bolero::check!()
         .with_type()
         .cloned()
         .for_each(|(addr, registers): (u64, [u64; 67])| {
-            prepare_anchor_tpm2_done();
+            prepare_anchor_after_drtm();
             havok_random(&registers);
 
             enter_anchor();
@@ -476,12 +476,12 @@ fn fuzz_tpm2_done() {
 #[kani::proof]
 #[allow(unused)]
 fn kani_cold_boot_boot() {
-    prepare_anchor_coold_boot_boot_hart();
+    prepare_anchor_cold_boot_boot_hart();
     let addr = kani::any();
 
     _start();
 
-    verify_pmp(TPM_DRIVER_DOMAIN_ID, sanitize_address(addr));
+    verify_pmp(TPM_DRIVER_SRTM_DOMAIN_ID, sanitize_address(addr));
     assert_eq!(
         HART_STATES[BOOT_HART_ID].load(Ordering::SeqCst),
         AFTER_SRTM
@@ -492,7 +492,7 @@ fn kani_cold_boot_boot() {
 #[kani::proof]
 #[allow(unused)]
 fn kani_cold_boot_other() {
-    prepare_anchor_coold_boot_other_hart();
+    prepare_anchor_cold_boot_other_hart();
     let addr = kani::any();
 
     _start();
@@ -507,8 +507,8 @@ fn kani_cold_boot_other() {
 #[cfg(kani)]
 #[kani::proof]
 #[allow(unused)]
-fn kani_tpm1_done() {
-    prepare_anchor_tpm1_done();
+fn kani_after_srtm() {
+    prepare_anchor_after_srtm();
     havoc_symbolic();
     let addr = kani::any();
 
@@ -525,15 +525,15 @@ fn kani_tpm1_done() {
 #[cfg(kani)]
 #[kani::proof]
 #[allow(unused)]
-fn kani_srtm_done_boot() {
-    prepare_anchor_srtm_done_boot_hart();
+fn kani_after_untrusted_boot() {
+    prepare_anchor_after_untrusted_boot_hart();
     havoc_symbolic();
     let addr = kani::any();
 
     enter_anchor();
     _start();
 
-    verify_pmp(TPM_DRIVER_DOMAIN_ID, sanitize_address(addr));
+    verify_pmp(TPM_DRIVER_DRTM_DOMAIN_ID, sanitize_address(addr));
     assert_eq!(
         HART_STATES[BOOT_HART_ID].load(Ordering::SeqCst),
         AFTER_DRTM
@@ -543,8 +543,8 @@ fn kani_srtm_done_boot() {
 #[cfg(kani)]
 #[kani::proof]
 #[allow(unused)]
-fn kani_srtm_done_other() {
-    prepare_anchor_srtm_done_other_hart();
+fn kani_after_untrusted_other() {
+    prepare_anchor_after_untrusted_other_hart();
     havoc_symbolic();
     let addr = kani::any();
 
@@ -561,8 +561,8 @@ fn kani_srtm_done_other() {
 #[cfg(kani)]
 #[kani::proof]
 #[allow(unused)]
-fn kani_tpm2_done() {
-    prepare_anchor_tpm2_done();
+fn kani_after_drtm() {
+    prepare_anchor_after_drtm();
     havoc_symbolic();
     let addr = kani::any();
 
