@@ -5,6 +5,9 @@ members = [
     "tpm-driver",
 ]
 
+[patch.crates-io]
+softcore-rv64 = { git = "https://github.com/CharlyCst/softcore-rs.git", rev = "6ebe7f9d" }
+
 [workspace.lints.clippy]
 uninlined_format_args = "allow"
 result_unit_err = "allow"

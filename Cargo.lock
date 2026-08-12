@@ -587,14 +587,12 @@ dependencies = [
 [[package]]
 name = "softcore-prelude"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "3b28d017b85c942bd778bd6bd88f9509149a21dd6af3257230340515b29db808"
+source = "git+https://github.com/CharlyCst/softcore-rs.git?rev=6ebe7f9d#6ebe7f9df8283ac46300f5a47fd86588ac881164"
 
 [[package]]
 name = "softcore-rv64"
 version = "0.5.0"
-source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "ec779d7419ac12ed48721c9c072aea0fa4ec2955e2d51e5ac81483a1ce5031d8"
+source = "git+https://github.com/CharlyCst/softcore-rs.git?rev=6ebe7f9d#6ebe7f9df8283ac46300f5a47fd86588ac881164"
 dependencies = [
  "softcore-prelude",
 ]

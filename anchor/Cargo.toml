@@ -20,9 +20,6 @@ softcore-asm-rv64 = { git = "https://github.com/CharlyCst/softcore-asm.git", rev
 [dev-dependencies]
 bolero = "0.13.4"
 
-[patch.crates-io]
-softcore-rv64 = { git = "https://github.com/CharlyCst/softcore-rs.git", rev = "6ebe7f9d"  }
-
 [profile.fuzz]
 inherits = "dev"
 opt-level = 3
