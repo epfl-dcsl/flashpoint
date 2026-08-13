@@ -1,0 +1,226 @@
+OpenSBI v1.1
+   ____                    _____ ____ _____
+  / __ \                  / ____|  _ \_   _|
+ | |  | |_ __   ___ _ __ | (___ | |_) || |
+ | |  | | '_ \ / _ \ '_ \ \___ \|  _ < | |
+ | |__| | |_) |  __/ | | |____) | |_) || |_
+  \____/| .__/ \___|_| |_|_____/|____/_____|
+        | |
+        |_|
+
+Platform Name             : freechips,rocketchip-unknown
+Platform Features         : medeleg
+Platform HART Count       : 1
+Platform IPI Device       : aclint-mswi
+Platform Timer Device     : aclint-mtimer @ 1000000Hz
+Platform Console Device   : xlnx-uartlite
+Platform HSM Device       : ---
+Platform PMU Device       : ---
+Platform Reboot Device    : ---
+Platform Shutdown Device  : ---
+Firmware Base             : 0x80200000
+Firmware Size             : 1220 KB
+Runtime SBI Version       : 1.0
+
+Domain0 Name              : root
+Domain0 Boot HART         : 0
+Domain0 HARTs             : 0*
+Domain0 Region00          : 0x0000000038000000-0x000000003800ffff (I)
+Domain0 Region01          : 0x0000000080200000-0x00000000803fffff ()
+Domain0 Region02          : 0x0000000000000000-0xffffffffffffffff (R,W,X)
+Domain0 Next Address      : 0x0000000080800000
+Domain0 Next Arg1         : 0x0000000082800000
+Domain0 Next Mode         : S-mode
+Domain0 SysReset          : yes
+
+Boot HART ID              : 0
+Boot HART Domain          : root
+Boot HART Priv Version    : v1.11
+Boot HART Base ISA        : rv64imafdc
+Boot HART ISA Extensions  : none
+Boot HART PMP Count       : 1
+Boot HART PMP Granularity : 4
+Boot HART PMP Address Bits: 30
+Boot HART MHPM Count      : 29
+Boot HART MIDELEG         : 0x0000000000000222
+Boot HART MEDELEG         : 0x000000000000b109
+
+-----------------FW_JUMP_ADDR: 80800000 to mode 1d, TYCHE_SM_START_CONTENT 464c457f, TYCHE_SM_START_ADDR 802291e0 -------------------
+
+parse_and_load_elf tyche_entry 80450294
+
+ARGS for TYCHE_SM: hartid: 0 , arg1: 82800000, next_addr: 80800000, next_mode: 1d
+
+Tyche Manifest: num_harts: 1d
+Making an ecall for hartid: 0
+
+Args to Anchor: tyche_start_addr: 80450000, region_size: 3affff, entry_addr: 80450294, hartid: 0, manifest_addr: 80440000
+[INFO | anchor] Boot time measurements for hart 0:
+[INFO | anchor]   after init           mcycle:         4909  minstret:          123
+[INFO | anchor]   start non-boot init wait mcycle:        15581  minstret:         2970
+[INFO | anchor]   end non-boot init wait mcycle:        15958  minstret:         2988
+[INFO | anchor]   before srtm          mcycle:        16655  minstret:         3014
+[INFO | anchor]   after tpm_drv_entry_srtm mcycle:        17043  minstret:         3076
+[INFO | anchor]   after srtm           mcycle:        19693  minstret:         3247
+[INFO | anchor]   before untrusted     mcycle:        23041  minstret:         4759
+[INFO | anchor]   after untrusted      mcycle:    313628331  minstret:     92210099
+[INFO | anchor]   start non-boot untrusted wait mcycle:    313639465  minstret:     92211697
+[INFO | anchor]   before drtm          mcycle:    313639914  minstret:     92211715
+[INFO | anchor]   after tpm_drv_entry_drtm mcycle:    313640860  minstret:     92211778
+[INFO | anchor]   after drtm           mcycle:    313642767  minstret:     92211890
+[INFO | anchor]   before sm            mcycle:    313646515  minstret:     92213402
+[INFO | anchor] Anchor execution: instructions: 1456 cycles: 4857
+
+                                                                 [INFO | tyche::riscv::init] ============= Hello from Second Stage on =
+[INFO | tyche::riscv::init] Manifest Content: 0 82800000 80800000 1 1
+[INFO | tyche::riscv::init] Done with arch init
+[INFO | capa_engine] About to seal
+[INFO | tyche::riscv::init] Done with monitor init
+[INFO | tyche::riscv::init] Initial domain is ready.
+[INFO | riscv_pmp] Hart 0 PMP Index: 0  PMP CFG: 10011000 PMP ADDR: 2001ffff
+[INFO | riscv_pmp] Hart 0 PMP Index: 1  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 2  PMP CFG: 0 PMP ADDR: f000000
+[INFO | riscv_pmp] Hart 0 PMP Index: 3  PMP CFG: 1111 PMP ADDR: 10180400
+[INFO | riscv_pmp] Hart 0 PMP Index: 4  PMP CFG: 0 PMP ADDR: 20200000
+[INFO | riscv_pmp] Hart 0 PMP Index: 5  PMP CFG: 1111 PMP ADDR: 200000000
+[INFO | riscv_pmp] Hart 0 PMP Index: 6  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 7  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 8  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 9  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 10  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 11  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 12  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 13  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 14  PMP CFG: 0 PMP ADDR: 0
+[INFO | riscv_pmp] Hart 0 PMP Index: 15  PMP CFG: 0 PMP ADDR: 0
+[INFO | tyche::riscv::init] MIP: 0 MIE: 0 MSTATUS: 645ecf MEDELEG: 0 MIDELEG: 0 MENVCFG: 645ecf
+[INFO | tyche::riscv] HartID: 0 Mcycle : 676995571 Minstret 102677344
+============= Launching Linux from Tyche =============
+
+Computed spec_version: 1000000
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+probing a0 54494d45
+PROBING sbi::EXT_TIME/IPI/RFENCE.
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 735049
+PROBING sbi::EXT_TIME/IPI/RFENCE.
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 52464e43
+PROBING sbi::EXT_TIME/IPI/RFENCE.
+Returning from probe 0
+[TYCHE] SBI_base_handler complete
+probing a0 53525354
+Returning from probe 0
+[TYCHE] SBI_base_handler complete[    0.000000] Linux version 6.10.3-g3b7a5bb18474 (neelu@vca-System-Product-Name) (riscv64-linux-gnu-6
+[    0.000000] Machine model: freechips,rocketchip-unknown
+[    0.000000] SBI specification v1.0 detected
+[    0.000000] SBI implementation ID=0x1 Version=0x10002
+[    0.000000] SBI TIME extension detected
+[    0.000000] SBI IPI extension detected
+[    0.000000] SBI RFENCE extension detected
+[    0.000000] SBI SRST extension detected
+[    0.000000] earlycon: sbi0 at I/O port 0x0 (options '')
+[    0.000000] printk: legacy bootconsole [sbi0] enabled
+[    0.000000] Memory limited to 4096MB
+[    0.000000] efi: UEFI not found.
+[    0.000000] OF: reserved mem: 0x0000000080000000..0x00000000801fffff (2048 KiB) nomap non-reusable anchor@80000000
+[    0.000000] OF: reserved mem: 0x0000000080200000..0x00000000803fffff (2048 KiB) map non-reusable mmode_resv0@80200000
+[    0.000000] OF: reserved mem: 0x0000000080400000..0x00000000807fffff (4096 KiB) nomap non-reusable tpm@80400000
+[    0.000000] Zone ranges:
+[    0.000000]   DMA32    [mem 0x0000000080000000-0x00000000ffffffff]
+[    0.000000]   Normal   [mem 0x0000000100000000-0x000000017fffffff]
+[    0.000000] Movable zone start for each node
+[    0.000000] Early memory node ranges
+[    0.000000]   node   0: [mem 0x0000000080000000-0x00000000801fffff]
+[    0.000000]   node   0: [mem 0x0000000080200000-0x00000000803fffff]
+[    0.000000]   node   0: [mem 0x0000000080400000-0x00000000807fffff]
+[    0.000000]   node   0: [mem 0x0000000080800000-0x000000017fffffff]
+[    0.000000] Initmem setup node 0 [mem 0x0000000080000000-0x000000017fffffff]
+
+probing a0 48534d
+Hart_suspend
+Returning from probe 0
+[TYCHE] SBI_base_handler complete[    0.000000] SBI HSM extension detected
+[    0.000000] Falling back to deprecated "riscv,isa"
+
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete[    0.000000] riscv: base ISA extensions acdfim
+[    0.000000] riscv: ELF capabilities acdfim
+
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete[    0.000000] percpu: Embedded 13 pages/cpu s24352 r0 d28896 u53248
+[    0.000000] Kernel command line: console=hvc0 earlycon=sbi mem=4G@0x80800000
+[    0.000000] Dentry cache hash table entries: 524288 (order: 10, 4194304 bytes, linear)
+[    0.000000] Inode-cache hash table entries: 262144 (order: 9, 2097152 bytes, linear)
+[    0.000000] Built 1 zonelists, mobility grouping on.  Total pages: 1048576
+[    0.000000] mem auto-init: stack:off, heap alloc:off, heap free:off
+[    0.000000] software IO TLB: area num 1.
+[    0.000000] software IO TLB: mapped [mem 0x00000000fbfff000-0x00000000fffff000] (64MB)
+[    0.000000] Memory: 3955876K/4194304K available (2138K kernel code, 3259K rwdata, 2048K rodata, 89217K init, 217K bss, 238428K rese)
+[    0.000000] SLUB: HWalign=64, Order=0-3, MinObjects=0, CPUs=1, Nodes=1
+[    0.000000] rcu: Hierarchical RCU implementation.
+[    0.000000] rcu:     RCU restricting CPUs from NR_CPUS=64 to nr_cpu_ids=1.
+[    0.000000] rcu: RCU calculated value of scheduler-enlistment delay is 25 jiffies.
+[    0.000000] rcu: Adjusting geometry for rcu_fanout_leaf=16, nr_cpu_ids=1
+[    0.000000] NR_IRQS: 64, nr_irqs: 64, preallocated irqs: 0
+[    0.000000] riscv-intc: 64 local interrupts mapped
+[    0.000000] riscv: providing IPIs using SBI IPI extension
+[    0.000000] rcu: srcu_init: Setting srcu_struct sizes based on contention.
+[    0.000000] clocksource: riscv_clocksource: mask: 0xffffffffffffffff max_cycles: 0x1d854df40, max_idle_ns: 3526361616960 ns
+[    0.000032] sched_clock: 64 bits at 1000kHz, resolution 1000ns, wraps every 2199023255500ns
+[    0.125495] Console: colour dummy device 80x25
+[    0.189968] Calibrating delay loop (skipped), value calculated using timer frequency.. 2.00 BogoMIPS (lpj=4000)
+[    0.339582] pid_max: default: 32768 minimum: 301
+[    0.409476] Mount-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.518351] Mountpoint-cache hash table entries: 8192 (order: 4, 65536 bytes, linear)
+[    0.675991] riscv: ELF compat mode unsupported
+[    0.676483] ASID allocator using 16 bits (65536 entries)
+[    0.804888] rcu: Hierarchical SRCU implementation.
+[    0.871427] rcu:     Max phase no-delay instances is 1000.
+[    0.961978] EFI services will not be available.
+[    1.019550] smp: Bringing up secondary CPUs ...
+[    1.083804] smp: Brought up 1 node, 1 CPU
+[    1.153550] devtmpfs: initialized
+[    1.205989] clocksource: jiffies: mask: 0xffffffff max_cycles: 0xffffffff, max_idle_ns: 7645041785100000 ns
+[    1.336306] futex hash table entries: 256 (order: 2, 16384 bytes, linear)
+[    1.441091] DMA: preallocated 512 KiB GFP_KERNEL pool for atomic allocations
+[    1.542652] DMA: preallocated 512 KiB GFP_KERNEL|GFP_DMA32 pool for atomic allocations
+
+[TYCHE] SBI_base_handler complete
+[TYCHE] SBI_base_handler complete[INFO | tyche::riscv::platform] Misaligned load handler start!
+[INFO | tyche::riscv::platform] Misaligned load handler 8 bytes!
+[INFO | tyche::riscv::platform] Misaligned load handler end!
+[    2.021994] clocksource: Switched to clocksource riscv_clocksource
+[    2.316472] workingset: timestamp_bits=62 max_order=20 bucket_order=0
+[    2.533380] riscv-plic 3c000000.interrupt-controller: mapped 64 interrupts with 1 handlers for 2 contexts.
+[    2.878164] printk: legacy console [hvc0] enabled
+[    2.878164] printk: legacy console [hvc0] enabled
+[    3.000473] printk: legacy bootconsole [sbi0] disabled
+[    3.000473] printk: legacy bootconsole [sbi0] disabled
+[    3.153722] Serial: 8250/16550 driver, 4 ports, IRQ sharing disabled
+[    3.389855] 40600000.serial: ttyUL0 at MMIO 0x40600000 (irq = 12, base_baud = 0) is a uartlite
+[    3.611188] uartlite 40600000.serial: Runtime PM usage count underflow!
+[    3.818291] Loading Tyche driver.
+[    3.818539] [@drivers/tyche/src/ioctl.c:49 tyche_register]
+[    3.847078] Major = 254 Minor = 0
+[    3.979900]
+[    4.045352] [@drivers/tyche/src/ioctl.c:76 tyche_register]
+[    4.045594] Tyche driver registered!
+[    4.163829]
+[    4.182757] Loading contalloc driver.
+[    4.182876] [@drivers/contalloc/src/ioctl.c:45 contalloc_register]
+[    4.236636] Major = 253 Minor = 0
+[    4.379772]
+[    4.649422] [@drivers/contalloc/src/ioctl.c:72 contalloc_register]
+[    4.649658] Tyche allocator driver registered!
+[    4.791830]
+[    5.009529] clk: Disabling unused clocks
+[   57.616154] Freeing unused kernel image (initmem) memory: 89216K
+[   57.689187] Run /init as init process
+/bin/sh: can't access tty; job control turned off
+/ #

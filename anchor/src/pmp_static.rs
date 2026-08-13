@@ -197,6 +197,6 @@ pub fn print_pmps() {
         };
 
         // Pretty print
-        log::info!("hart {hartid} - PMP {i:2}  {start:16x} {end:16x} | {r}{w}{x}{l} {mode}");
+        log::debug!("hart {hartid} - PMP {i:2}  {start:16x} {end:16x} | {r}{w}{x}{l} {mode}");
     }
 }

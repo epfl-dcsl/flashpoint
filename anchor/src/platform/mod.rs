@@ -15,6 +15,10 @@ type CurrentPlatform = xiangshan::XSPlatform;
 #[cfg(not(any(test, feature = "softcore", feature = "xiangshan")))]
 type CurrentPlatform = virt::VirtPlatform;
 
+#[cfg(all(not(any(test, feature = "softcore")), feature = "xiangshan"))]
+const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Info;
+#[cfg(not(any(test, feature = "softcore", feature = "xiangshan")))]
+const LOG_LEVEL: log::LevelFilter = log::LevelFilter::Debug;
 
 pub trait Platform {
     fn init();
@@ -25,7 +29,9 @@ pub trait Platform {
 
 pub fn init() {
     CurrentPlatform::init();
-    logger::init(log::LevelFilter::Info);
+
+    #[cfg(all(not(test), not(feature = "softcore")))]
+    logger::init(LOG_LEVEL);
     // Trap handler
     arch::init();
     //log::info!("Done with platform init.");

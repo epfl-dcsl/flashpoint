@@ -47,9 +47,7 @@ impl Architecture for Metal {
         unsafe { write_mtvec(handler) };
         let mtvec = read_mtvec();
         assert_eq!(handler, mtvec, "Failed to set trap handler");
-
-        log::info!("Done setting up trap handler");
-
+        //log::info!("Done setting up trap handler");
     }
 
     fn read_mhartid() -> usize {

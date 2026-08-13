@@ -1,0 +1,69 @@
+cargo kani --features softcore,loglevel-off --output-format terse
+Kani Rust Verifier 0.67.0 (cargo plugin)
+   Compiling anchor v0.1.0 (/raid1/neelu/Neelu_Do_Not_Touch/flashpoint-anchor)
+warning: Found the following unsupported constructs:
+             - caller_location (1)
+             - foreign function (2)
+         
+         Verification will fail if one or more of these constructs is reachable.
+         See https://model-checking.github.io/kani/rust-feature-support.html for more details.
+
+warning: Kani currently does not support concurrency. The following constructs will be treated as sequential operations:
+             - atomic_xadd (5)
+             - atomic_load (6)
+             - atomic_cxchg (30)
+             - thread local (replaced by static variable) (1)
+             - atomic_store (6)
+         
+
+    Finished `dev` profile [unoptimized + debuginfo] target(s) in 9.33s
+Checking harness verif::kani_after_drtm...
+
+VERIFICATION RESULT:
+ ** 0 of 15890 failed (807 unreachable)
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 9802.313s
+
+Checking harness verif::kani_after_untrusted_other...
+
+VERIFICATION RESULT:
+ ** 0 of 15594 failed (804 unreachable)
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 9369.043s
+
+Checking harness verif::kani_after_untrusted_boot...
+
+VERIFICATION RESULT:
+ ** 0 of 15593 failed (815 unreachable)
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 9473.559s
+
+Checking harness verif::kani_after_srtm...
+
+VERIFICATION RESULT:
+ ** 0 of 15593 failed (818 unreachable)
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 8086.082s
+
+Checking harness verif::kani_cold_boot_other...
+
+VERIFICATION RESULT:
+ ** 0 of 15362 failed (889 unreachable)
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 5408.724s
+
+Checking harness verif::kani_cold_boot_boot...
+
+VERIFICATION RESULT:
+ ** 0 of 15361 failed (889 unreachable)
+
+VERIFICATION:- SUCCESSFUL
+Verification Time: 5405.21s
+
+Manual Harness Summary:
+Complete - 6 successfully verified harnesses, 0 failures, 6 total.

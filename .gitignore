@@ -4,6 +4,8 @@
 /xiangshan/*.bin
 /anchor/src/__fuzz__
 
+*__pycache__*
+
 *.o
 *.a
 
