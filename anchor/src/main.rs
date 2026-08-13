@@ -39,8 +39,7 @@ const BOOT_HART_ID: usize = 0;
 const TPM_DRIVER_ADDR: usize = 0x80080000;
 const UNTRUSTED_ADDR: usize = 0x80200000;
 
-const ANCHOR_MEASUREMENT_SIZE: usize = 0xc98f; // entry+point + text + rodata + got + data + bss
-const TRUSTED_MEASUREMENT_SIZE: usize = 0x15e3a; // text + rodata
+const TRUSTED_MEASUREMENT_SIZE: usize = 0x15fac; // text + rodata
 const SECURITY_MONITOR_ADDR: usize = 0x80450000;
 
 
@@ -70,7 +69,6 @@ static mut STACK_ADDRESS: [usize; NUM_HARTS] = {
 
 #[allow(clippy::declare_interior_mutable_const)]
 const ZERO: AtomicU64 = AtomicU64::new(0);
-static PMP_STATE_AFTER_INIT: [AtomicU64; 18 * NUM_HARTS] = [ZERO; 18 * NUM_HARTS]; // TODO: This assumes 16 PMP entries 
 static DOM0_ARG1: AtomicU64 = ZERO;
 static DOM0_ARG2: AtomicU64 = ZERO;
 static DOM1_ARG1: AtomicU64 = ZERO;
@@ -154,6 +152,12 @@ const SECURITY_MONITOR_DOMAIN_ID: usize = 3;
 const NB_DOMAINS: usize = DOMAINS.len();
 const PMP_ENTRIES: usize = 16;
 const PMP_CFG_ENTRIES: usize = PMP_ENTRIES / 8;
+
+const PMP_STATE_WORDS_PER_HART: usize = PMP_CFG_ENTRIES + PMP_ENTRIES;
+const PMP_STATE_MEASUREMENT_SIZE: usize =
+    PMP_STATE_WORDS_PER_HART * NUM_HARTS * 8;
+
+static PMP_STATE_AFTER_INIT: [AtomicU64; PMP_STATE_WORDS_PER_HART * NUM_HARTS] = [ZERO; PMP_STATE_WORDS_PER_HART * NUM_HARTS]; 
 
 /// The table holding the PMP addresses for each domain.
 static PMPADDR_TABLE: [[usize; PMP_ENTRIES]; NB_DOMAINS] = pmp_static::build_pmpaddr_table(DOMAINS);
@@ -255,10 +259,10 @@ fn handle_cold_boot_boot_hart(reg_args: RegisterArguments, hartid: usize) -> (u6
 
     record_counters(perf_counters::ENTER_TPM_SRTM);
 
-    // Switch to TPM Driver, asking it to measure the anchor for the SRTM
+    // Switch to TPM Driver for the SRTM
     (
-        ANCHOR_REGION.0 as u64,
-        ANCHOR_MEASUREMENT_SIZE as u64,
+        PMP_STATE_AFTER_INIT.as_ptr() as u64,
+        PMP_STATE_MEASUREMENT_SIZE as u64,
         TPM_DRIVER_ADDR as u64,
     )
 }

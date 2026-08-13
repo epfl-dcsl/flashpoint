@@ -19,6 +19,7 @@ RUN ln -snf "/usr/share/zoneinfo/${TZ}" /etc/localtime \
     libclang-dev \
     llvm-dev \
     vim \
+    diffutils \
     python3 \
     python3-venv \
     python3-tomli \

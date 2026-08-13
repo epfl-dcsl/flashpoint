@@ -743,30 +743,32 @@ static u32 tis_hash_start(u8 locty){
 static u32 tis_hash_senddata(u8 locty, const u8 * const data, u32 len){
 
 	/*We are about to send data on a locality other than 4 */
-	u8 rc = 0;
 	u32 offset = 0;
-	u8 end_loop = 0;
-	u64 elem = 0;
-	do {
-		
-		//If we can write 8 bytes in a single go, we do, otherwise we write byte by byte.
-		if (offset + sizeof(u64)/sizeof(u8) < len) {
-			elem =  ((u64 *) data)[offset];
-			offset +=sizeof(u64)/sizeof(u8);
-			write_l(TIS_REG(locty, TIS_HASH_DATA_FIFO), elem);
-		}
-		else{
-			write_b(TIS_REG(locty, TIS_HASH_DATA_FIFO), data[offset++]);
-		}
-		/* Blocking wait */
-		timer_delay_loop(10000);
 
-		if (offset==len)
-			end_loop = 1;
+    while (offset < len) {
+        if (len - offset >= sizeof(u32)) {
+            /*
+             * The TPM MMIO interface is little-endian. Construct the value
+             * explicitly so the hashed byte stream is data[offset..offset+4].
+             */
+            u32 elem =
+                ((u32)data[offset]) |
+                ((u32)data[offset + 1] << 8) |
+                ((u32)data[offset + 2] << 16) |
+                ((u32)data[offset + 3] << 24);
+
+            write_l(TIS_REG(locty, TIS_HASH_DATA_FIFO), elem);
+            offset += sizeof(u32);
+        } else {
+            write_b(TIS_REG(locty, TIS_HASH_DATA_FIFO), data[offset]);
+            offset++;
+        }
+
+        /* Blocking wait */
+        timer_delay_loop(10000);
+    }
 	
-	} while (end_loop == 0);
-	
-	return rc;
+	return 0;
 }
 
 u32 tpm_hash_start_loc4(void){

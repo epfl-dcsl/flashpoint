@@ -1,5 +1,5 @@
 diff --git a/backends/tpm/tpm_backend.c b/backends/tpm/tpm_backend.c
-index 485a20b9e0..ead20b17fd 100644
+index 485a20b9e09f66ffc7879ac6f9d6fca6dcb26d19..ead20b17fd594fef9a112bba73888145efd5a8c2 100644
 --- a/backends/tpm/tpm_backend.c
 +++ b/backends/tpm/tpm_backend.c
 @@ -174,6 +174,22 @@ TPMInfo *tpm_backend_query_tpm(TPMBackend *s)
@@ -26,7 +26,7 @@ index 485a20b9e0..ead20b17fd 100644
  {
      TPMBackend *s = TPM_BACKEND(obj);
 diff --git a/backends/tpm/tpm_emulator.c b/backends/tpm/tpm_emulator.c
-index aa05dab6ae..8f4142567d 100644
+index aa05dab6aef741202b6b6f1f0c782c93cbda11e5..8f4142567dc6136fab33e3f1994f2bda78ed01b0 100644
 --- a/backends/tpm/tpm_emulator.c
 +++ b/backends/tpm/tpm_emulator.c
 @@ -697,6 +697,46 @@ static TpmTypeOptions *tpm_emulator_get_tpm_options(TPMBackend *tb)
@@ -88,7 +88,7 @@ index aa05dab6ae..8f4142567d 100644
  }
 diff --git a/build_qemu.sh b/build_qemu.sh
 new file mode 100755
-index 0000000000..d0143abdc4
+index 0000000000000000000000000000000000000000..d0143abdc4228b4a632bdb715273f0b5238935d2
 --- /dev/null
 +++ b/build_qemu.sh
 @@ -0,0 +1,5 @@
@@ -99,7 +99,7 @@ index 0000000000..d0143abdc4
 +cd ../../
 diff --git a/build_qemu_debug.sh b/build_qemu_debug.sh
 new file mode 100755
-index 0000000000..14e1265850
+index 0000000000000000000000000000000000000000..14e1265850e312b24c3aef3469100161ef9f72da
 --- /dev/null
 +++ b/build_qemu_debug.sh
 @@ -0,0 +1,5 @@
@@ -109,7 +109,7 @@ index 0000000000..14e1265850
 +make -j $(nproc)
 +cd ../../
 diff --git a/configure b/configure
-index 18336376bf..5444c5e85d 100755
+index 18336376bff6421b83ee8eca620ff545d4b09777..5444c5e85d967d34116ebb44053eb79a05633ad6 100755
 --- a/configure
 +++ b/configure
 @@ -272,7 +272,7 @@ cfi="false"
@@ -122,7 +122,7 @@ index 18336376bf..5444c5e85d 100755
  
  # Preferred compiler:
 diff --git a/hw/tpm/tpm_tis_common.c b/hw/tpm/tpm_tis_common.c
-index 1bfa28bfd9..d16c77414d 100644
+index 1bfa28bfd9533eb3587284dd546c9442e80b4273..6efbd8dcfd9e8b94e162ae387fd3660404b84bee 100644
 --- a/hw/tpm/tpm_tis_common.c
 +++ b/hw/tpm/tpm_tis_common.c
 @@ -20,7 +20,7 @@
@@ -154,7 +154,7 @@ index 1bfa28bfd9..d16c77414d 100644
      }
  
      if (tpm_backend_had_startup_error(s->be_driver)) {
-@@ -501,8 +505,34 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+@@ -501,8 +505,36 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
      }
  
      mask ^= 0xffffffff;
@@ -165,6 +165,7 @@ index 1bfa28bfd9..d16c77414d 100644
 +        /* Hashing operations only permitted on locality 4 */
 +        if (locty == 4){
 +            /*Locality has to be 4 or None to consider a HASH_START command*/
++                pending_data_size = 0;
 +                tpm_backend_hash_start(s->be_driver);
 +                hash_started = 1;
 +                break;
@@ -179,7 +180,8 @@ index 1bfa28bfd9..d16c77414d 100644
 +                }
 +
 +                if (pending_data_size > 0) {
-+                    tpm_backend_hash_data(s->be_driver, hdata, HDATA_BUFFER_SIZE);
++                    tpm_backend_hash_data(s->be_driver, hdata, pending_data_size);
++                    pending_data_size = 0;
 +                }
 +                tpm_backend_hash_end(s->be_driver);
 +                hash_started = 0;
@@ -189,54 +191,95 @@ index 1bfa28bfd9..d16c77414d 100644
      case TPM_TIS_REG_ACCESS:
  
          if ((val & TPM_TIS_ACCESS_SEIZE)) {
-@@ -715,9 +745,6 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
-     case TPM_TIS_REG_DATA_FIFO:
+@@ -712,9 +744,31 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+             }
+         }
+         break;
+-    case TPM_TIS_REG_DATA_FIFO:
++        case TPM_TIS_REG_DATA_FIFO:
      case TPM_TIS_REG_DATA_XFIFO ... TPM_TIS_REG_DATA_XFIFO_END:
-         /* data fifo */
--        if (s->active_locty != locty) {
--            break;
--        }
- 
-         if (s->loc[locty].state == TPM_TIS_STATE_IDLE ||
-             s->loc[locty].state == TPM_TIS_STATE_EXECUTION ||
-@@ -725,12 +752,22 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+-        /* data fifo */
++        /* Locality-4 hash data uses the FIFO as a raw byte stream. */
++        if (locty == 4 && hash_started) {
++            val >>= shift;
++
++            if (size > 4 - (addr & 0x3)) {
++                size = 4 - (addr & 0x3);
++            }
++
++            for (unsigned i = 0; i < size; i++) {
++                hdata[pending_data_size++] = (uint8_t)val;
++                val >>= 8;
++
++                if (pending_data_size == HDATA_BUFFER_SIZE) {
++                    tpm_backend_hash_data(s->be_driver, hdata,
++                                          HDATA_BUFFER_SIZE);
++                    pending_data_size = 0;
++                }
++            }
++
++            break;
++        }
++
++        /* Normal TPM command FIFO handling. */
+         if (s->active_locty != locty) {
+             break;
+         }
+@@ -725,6 +779,7 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
              /* drop the byte */
          } else {
              trace_tpm_tis_mmio_write_data2send(val, size);
-+            if (locty == 4){
-+                if (hash_started) {
-+                    if (pending_data_size + size < HDATA_BUFFER_SIZE) {
-+                        memcpy(&(hdata[pending_data_size]), &val, size);
-+                        pending_data_size += 4;
-+		    }else{
-+			tpm_backend_hash_data(s->be_driver, hdata, HDATA_BUFFER_SIZE);
-+			pending_data_size = 0;
-+		    }
-+                }
-+            }
++
              if (s->loc[locty].state == TPM_TIS_STATE_READY) {
                  s->loc[locty].state = TPM_TIS_STATE_RECEPTION;
                  tpm_tis_sts_set(&s->loc[locty],
-                                 TPM_TIS_STS_EXPECT | TPM_TIS_STS_VALID);
--            }
--
-+	    }
-             val >>= shift;
-             if (size > 4 - (addr & 0x3)) {
-                 /* prevent access beyond FIFO */
-@@ -745,8 +782,8 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+@@ -739,31 +794,35 @@ static void tpm_tis_mmio_write(void *opaque, hwaddr addr,
+ 
+             while ((s->loc[locty].sts & TPM_TIS_STS_EXPECT) && size > 0) {
+                 if (s->rw_offset < s->be_buffer_size) {
+-                    s->buffer[s->rw_offset++] =
+-                        (uint8_t)val;
++                    s->buffer[s->rw_offset++] = (uint8_t)val;
+                     val >>= 8;
                      size--;
                  } else {
-                     tpm_tis_sts_set(&s->loc[locty], TPM_TIS_STS_VALID);
--                }
--            }
-+		}
-+	    }
+-                    tpm_tis_sts_set(&s->loc[locty], TPM_TIS_STS_VALID);
++                    tpm_tis_sts_set(&s->loc[locty],
++                                    TPM_TIS_STS_VALID);
+                 }
+             }
  
-             /* check for complete packet */
+-            /* check for complete packet */
++            /* Check for complete packet. */
              if (s->rw_offset > 5 &&
+                 (s->loc[locty].sts & TPM_TIS_STS_EXPECT)) {
+-                /* we have a packet length - see if we have all of it */
+-                bool need_irq = !(s->loc[locty].sts & TPM_TIS_STS_VALID);
++                bool need_irq =
++                    !(s->loc[locty].sts & TPM_TIS_STS_VALID);
+ 
+                 len = tpm_cmd_get_size(&s->buffer);
+                 if (len > s->rw_offset) {
+                     tpm_tis_sts_set(&s->loc[locty],
+-                                    TPM_TIS_STS_EXPECT | TPM_TIS_STS_VALID);
++                                    TPM_TIS_STS_EXPECT |
++                                    TPM_TIS_STS_VALID);
+                 } else {
+                     /* packet complete */
+-                    tpm_tis_sts_set(&s->loc[locty], TPM_TIS_STS_VALID);
++                    tpm_tis_sts_set(&s->loc[locty],
++                                    TPM_TIS_STS_VALID);
+                 }
++
+                 if (need_irq) {
+-                    tpm_tis_raise_irq(s, locty, TPM_TIS_INT_STS_VALID);
++                    tpm_tis_raise_irq(s, locty,
++                                      TPM_TIS_INT_STS_VALID);
+                 }
+             }
+         }
 diff --git a/include/hw/acpi/tpm.h b/include/hw/acpi/tpm.h
-index 579c45f5ba..48d6d877d2 100644
+index 579c45f5bafed9e271fc243943ac0cb2bf811b73..48d6d877d2185cb1f4b59203e561480feed76ac2 100644
 --- a/include/hw/acpi/tpm.h
 +++ b/include/hw/acpi/tpm.h
 @@ -38,6 +38,8 @@
@@ -249,7 +292,7 @@ index 579c45f5ba..48d6d877d2 100644
  #define TPM_TIS_REG_INTERFACE_ID          0x30
  #define TPM_TIS_REG_DATA_XFIFO            0x80
 diff --git a/include/sysemu/tpm_backend.h b/include/sysemu/tpm_backend.h
-index 7fabafefee..41cd50420d 100644
+index 7fabafefee164f2f307a0f879f3510d650ac96e1..41cd50420d1e0add931217513ed8f75350f3cc31 100644
 --- a/include/sysemu/tpm_backend.h
 +++ b/include/sysemu/tpm_backend.h
 @@ -79,6 +79,13 @@ struct TPMBackendClass {
@@ -280,7 +323,7 @@ index 7fabafefee..41cd50420d 100644
  
  #endif /* TPM_BACKEND_H */
 diff --git a/target/riscv/cpu.c b/target/riscv/cpu.c
-index f219f0c3b5..7de09a4edc 100644
+index f219f0c3b527190cdc2bf38e47ad956b418d74ac..7de09a4edc6575aaa1d8eb8e4ead62f5cd5cf304 100644
 --- a/target/riscv/cpu.c
 +++ b/target/riscv/cpu.c
 @@ -1573,6 +1573,9 @@ const RISCVCPUMultiExtConfig riscv_cpu_extensions[] = {
@@ -294,7 +337,7 @@ index f219f0c3b5..7de09a4edc 100644
  };
  
 diff --git a/target/riscv/cpu_cfg.h b/target/riscv/cpu_cfg.h
-index 59d6fc445d..8f290e9d38 100644
+index 59d6fc445d18abd0a317c8a04d3923dbca61ebd4..8f290e9d380295ea95adcadcb1b264d61608fc57 100644
 --- a/target/riscv/cpu_cfg.h
 +++ b/target/riscv/cpu_cfg.h
 @@ -163,6 +163,9 @@ struct RISCVCPUConfig {
@@ -308,7 +351,7 @@ index 59d6fc445d..8f290e9d38 100644
      uint16_t vlenb;
      uint16_t elen;
 diff --git a/target/riscv/cpu_helper.c b/target/riscv/cpu_helper.c
-index 45806f5ab0..288ab70143 100644
+index 45806f5ab0f8959f055e1facd9d8a9fac38f918d..288ab701437702b3b9f7ae333d431e979ab977d8 100644
 --- a/target/riscv/cpu_helper.c
 +++ b/target/riscv/cpu_helper.c
 @@ -34,6 +34,7 @@
@@ -321,7 +364,7 @@ index 45806f5ab0..288ab70143 100644
  {
 diff --git a/target/riscv/flashpoint.c b/target/riscv/flashpoint.c
 new file mode 100644
-index 0000000000..54f864953b
+index 0000000000000000000000000000000000000000..54f864953b357847cd74a1fe7ecab311a6f299fe
 --- /dev/null
 +++ b/target/riscv/flashpoint.c
 @@ -0,0 +1,134 @@
@@ -461,7 +504,7 @@ index 0000000000..54f864953b
 +}
 diff --git a/target/riscv/flashpoint.h b/target/riscv/flashpoint.h
 new file mode 100644
-index 0000000000..786f0f8b31
+index 0000000000000000000000000000000000000000..786f0f8b31ff70021eec98382382fa05399b311a
 --- /dev/null
 +++ b/target/riscv/flashpoint.h
 @@ -0,0 +1,8 @@
@@ -474,7 +517,7 @@ index 0000000000..786f0f8b31
 +int riscv_exit_anchor(CPURISCVState *env, target_ulong jump_address, target_ulong _unused);
 +int riscv_enter_anchor(CPURISCVState *env, target_ulong exit_address, target_ulong exit_region_size, target_ulong* anchor_entry_address);
 diff --git a/target/riscv/helper.h b/target/riscv/helper.h
-index 451261ce5a..84ac19401c 100644
+index 451261ce5a4f6138a06afb1e4abc0c838acb283e..84ac19401c3ddd5e051ac37bfa3003d46645dc76 100644
 --- a/target/riscv/helper.h
 +++ b/target/riscv/helper.h
 @@ -121,6 +121,10 @@ DEF_HELPER_2(cbo_clean_flush, void, env, tl)
@@ -489,7 +532,7 @@ index 451261ce5a..84ac19401c 100644
  DEF_HELPER_2(csrr, tl, env, int)
  DEF_HELPER_3(csrw, void, env, int, tl)
 diff --git a/target/riscv/insn32.decode b/target/riscv/insn32.decode
-index e9139ec1b9..c13aa5c0f4 100644
+index e9139ec1b9cfdb2dc5029dd28430933a2b4e1442..c13aa5c0f4c4a92f53b3e04b47c94d777012ac8c 100644
 --- a/target/riscv/insn32.decode
 +++ b/target/riscv/insn32.decode
 @@ -190,6 +190,8 @@ subw     0100000 .....  ..... 000 ..... 0111011 @r
@@ -509,7 +552,7 @@ index e9139ec1b9..c13aa5c0f4 100644
 +amocas_h    00101 . . ..... ..... 001 ..... 0101111 @atom_st
 \ No newline at end of file
 diff --git a/target/riscv/insn_trans/trans_rvi.c.inc b/target/riscv/insn_trans/trans_rvi.c.inc
-index 96c218a9d7..777e2564d3 100644
+index 96c218a9d7875c6419287ac3aa9746251be3f442..777e2564d32fbe9a2f5f2560b573ae5838ec8ab4 100644
 --- a/target/riscv/insn_trans/trans_rvi.c.inc
 +++ b/target/riscv/insn_trans/trans_rvi.c.inc
 @@ -18,6 +18,8 @@
@@ -634,7 +677,7 @@ index 96c218a9d7..777e2564d3 100644
 +    return true;
 +}
 diff --git a/target/riscv/meson.build b/target/riscv/meson.build
-index a4bd61e52a..71d42787d3 100644
+index a4bd61e52a94054d1818a872ec6230918370c666..71d42787d30047c77e96a3a4c5cea1a10db8f66d 100644
 --- a/target/riscv/meson.build
 +++ b/target/riscv/meson.build
 @@ -15,6 +15,7 @@ riscv_ss.add(files(
@@ -657,7 +700,7 @@ index a4bd61e52a..71d42787d3 100644
  subdir('kvm')
  
 diff --git a/target/riscv/op_helper.c b/target/riscv/op_helper.c
-index eddedacf4b..44ab327404 100644
+index eddedacf4b4f191127b6378d4c2dbfd747123f9e..44ab3274045207041d5677c859c0c866c7419142 100644
 --- a/target/riscv/op_helper.c
 +++ b/target/riscv/op_helper.c
 @@ -24,6 +24,7 @@

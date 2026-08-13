@@ -12,7 +12,7 @@ from pathlib import Path
 
 
 PMP_LINE = re.compile(
-    r"^\[INFO \| (?P<source>anchor|tpm-driver)\] "
+    r"^\[(?:DEBUG|INFO) \| (?P<source>anchor|tpm-driver)\] "
     r"hart (?P<hart>\d+) - PMP\s+(?P<entry>\d+)\b"
 )
 

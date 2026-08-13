@@ -1,0 +1,31 @@
+FlashPoint measurement and quote verification
+  log:        /home/neelu/flashpoint/flashpoint-artifact-wip/my_qemu_run_log.txt
+  anchor:     /home/neelu/flashpoint/flashpoint-artifact-wip/target/riscv-unknown-kernel/debug/anchor
+  TPM driver: /home/neelu/flashpoint/flashpoint-artifact-wip/target/riscv-unknown-kernel/debug/tpm-driver
+  Tyche:      /home/neelu/flashpoint/flashpoint-artifact-wip/tyche/target/riscv-unknown-kernel/release/tyche
+
+[PASS] SRTM measurement (PCR 0)
+       computed: 2f1720cc9e0f92b483074d05432f0bed2d2f9cb94863e48b3e3b7fcc15e1a5bc21c2db2f55e6b5f3ae4bb582400c6757
+       reported: 2f1720cc9e0f92b483074d05432f0bed2d2f9cb94863e48b3e3b7fcc15e1a5bc21c2db2f55e6b5f3ae4bb582400c6757
+       replayed 7 extends: PMP state, then 6 configured binary regions
+       anchor entry point + text: 0x80000000 + 0x6daa
+       anchor rodata: 0x80007000 + 0x3ebf
+       anchor GOT: 0x8000aec0 + 0x68
+       TPM-driver entry point + text: 0x80080000 + 0xc64a
+       TPM-driver rodata: 0x8008d000 + 0x46aa
+       TPM-driver GOT: 0x800916b0 + 0x78
+
+[PASS] DRTM measurement (PCR 17)
+       computed: 56488e81d8f8403ecc69805d65a3957e7e36419796e1fb5460b154f421b5eeb93d2d53247127f03a823513347f9b1f1c
+       reported: 56488e81d8f8403ecc69805d65a3957e7e36419796e1fb5460b154f421b5eeb93d2d53247127f03a823513347f9b1f1c
+       configured: 0x80450000 + 0x15fac; logged: 0x80450000 + 0x15fac
+
+[PASS] TPM quote
+       PASS: TPMS_ATTEST magic/type and fields
+       PASS: quote selects SHA-384 PCRs 0 and 17
+       PASS: RSA-3072 RSASSA/SHA-384 signature
+       PASS: attested digest matches reported PCRs
+       PASS: attested digest matches recomputed PCRs
+       note: the log supplies the public key and contains no nonce; key trust and freshness are not established
+
+Overall result: PASS
