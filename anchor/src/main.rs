@@ -280,7 +280,7 @@ fn handle_cold_boot_other_hart(reg_args: RegisterArguments, hartid: usize) -> (u
     CORES_DONE_WITH_PMP_INIT.fetch_add(1, Ordering::SeqCst);
 
     // Wait while SRTM is not yet done 
-    while HART_STATES[BOOT_HART_ID].load(Ordering::SeqCst) < AFTER_SRTM {
+    while HART_STATES[BOOT_HART_ID].load(Ordering::SeqCst) < AFTER_UNTRUSTED {
         core::hint::spin_loop();
     }
 
