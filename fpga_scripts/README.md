@@ -11,7 +11,7 @@ This flow has been tested only with Vivado v2024.2.
 
 This directory contains all scripts required to generate the bitstream:
 
-Clone the required XiangShan source code and apply our patches (present in `flashpoint-patches/`) that implement the Flashpoint instructions:
+The following command will clone the required XiangShan source code and apply our patches (present in `flashpoint-patches/`) that implement the Flashpoint instructions:
 
 ```shell
 sh download_xiangshan.sh
@@ -19,7 +19,7 @@ sh download_xiangshan.sh
 
 ## Generating the Bitstream
 
-Generate the Verilog files for the Flashpoint-enabled version of XiangShan, create a Vivado project, and generate the bitstream for the U55C board:
+The following commands generate the Verilog files for the Flashpoint-enabled version of XiangShan, create a Vivado project, and generate the bitstream for the U55C board:
 
 ```shell
 sh gen_bit.sh

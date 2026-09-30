@@ -30,7 +30,7 @@ The Docker image installs the required Rust and RISC-V toolchains, recursively
 clones the repository and its submodules, builds `swtpm`, and downloads the
 prebuilt Linux images.
 
-## 1. Build the Docker image
+## Build the Docker image
 
 You do NOT need to clone the repository. 
 
@@ -71,7 +71,7 @@ The output should begin with:
 TPM emulator version 0.9.0
 ```
 
-## 2. Experiment 1: QEMU DRTM with `swtpm`
+## Experiment 1: QEMU DRTM with `swtpm`
 
 **Time required:** less than 30 minutes.
 
@@ -128,7 +128,7 @@ available in
 
 Keep the container running if you plan to build the FPGA software next.
 
-## 3. Experiment 2: XiangShan FPGA
+## Experiment 2: XiangShan FPGA
 
 **Time required:** less than 30 minutes.
 
@@ -230,7 +230,7 @@ bash bench2.sh bench all native-riscv64 O3 1
 Reference output:
 [`expected_results/rv8-benchmarks.txt`](expected_results/rv8-benchmarks.txt).
 
-## 4. Experiment 3: Kani verification
+## Experiment 3: Kani verification
 
 **Time required:** less than 15 minutes of human time and approximately 15 hours
 of compute time.
