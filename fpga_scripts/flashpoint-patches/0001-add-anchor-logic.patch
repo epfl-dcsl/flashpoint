@@ -1,0 +1,39 @@
+From 385b097204e7bebf78b79bd8b554a1b3eb057b93 Mon Sep 17 00:00:00 2001
+From: Guokai Chen <guokai.chen@epfl.ch>
+Date: Tue, 2 Dec 2025 15:25:53 +0100
+Subject: [PATCH] add anchor logic
+
+---
+ src/main/scala/utility/RegMap.scala | 11 +++++++----
+ 1 file changed, 7 insertions(+), 4 deletions(-)
+
+diff --git a/src/main/scala/utility/RegMap.scala b/src/main/scala/utility/RegMap.scala
+index 1102f71..38668b2 100644
+--- a/src/main/scala/utility/RegMap.scala
++++ b/src/main/scala/utility/RegMap.scala
+@@ -45,15 +45,18 @@ object MaskedRegMap { // TODO: add read mask
+            ): (Int, (UInt, UInt, UInt => UInt, UInt, UInt => UInt)) = (addr, (reg, wmask, wfn, rmask, rfn))
+   def generate(mapping: Map[Int, (UInt, UInt, UInt => UInt, UInt, UInt => UInt)], raddr: UInt, rdata: UInt,
+     waddr: UInt, wen: Bool, wdata: UInt):Unit = {
+-    val chiselMapping = mapping.map { case (a, (r, wm, w, rm, rfn)) => (a.U, r, wm, w, rm, rfn) }
++    val chiselMapping = mapping.map { case (a, (r, wm, wfn, rm, rfn)) => (a.U, r, wm, wfn, rm, rfn) }
+     rdata := LookupTree(raddr, chiselMapping.map { case (a, r, _, _, rm, rfn) => (a, rfn(r & rm)) })
+     val wdata_reg = RegEnable(wdata, wen)
+-    chiselMapping.foreach { case (a, r, wm, w, _, _) =>
+-      if (w != null && wm != UnwritableMask) {
++    chiselMapping.foreach { case (a, r, wm, wfn, _, _) =>
++      if (wfn != null && wm != UnwritableMask) {
+         // Warning: this RegMap adds a RegNext for write to reduce fanout
+         // the w must be pure function without side effects
+         val wen_reg = RegNext(wen && waddr === a)
+-        when (wen_reg) { r := w(MaskData(r, wdata_reg, wm)) }
++        when (wen_reg) { r := wfn(MaskData(r, wdata_reg, wm)) }
++
++        // r: the register body
++        // what we want: clear all PMP lock / lock pmp0
+       }
+     }
+   }
+-- 
+2.34.1
+

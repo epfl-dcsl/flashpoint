@@ -1,0 +1,247 @@
+From d89056f5e4edb6100cd74f08975a22316e308667 Mon Sep 17 00:00:00 2001
+From: Guokai Chen <guokai.chen@epfl.ch>
+Date: Tue, 2 Dec 2025 15:24:02 +0100
+Subject: [PATCH 1/3] anchor inst done
+
+---
+ src/main/scala/xiangshan/Bundle.scala         |  4 ++
+ .../xiangshan/backend/decode/DecodeUnit.scala |  8 +++
+ src/main/scala/xiangshan/backend/fu/CSR.scala | 56 +++++++++++++++++--
+ src/main/scala/xiangshan/backend/fu/PMP.scala | 26 +++++++--
+ src/main/scala/xiangshan/package.scala        |  3 +
+ 5 files changed, 87 insertions(+), 10 deletions(-)
+
+diff --git a/src/main/scala/xiangshan/Bundle.scala b/src/main/scala/xiangshan/Bundle.scala
+index afcb3468e..14ae377c8 100644
+--- a/src/main/scala/xiangshan/Bundle.scala
++++ b/src/main/scala/xiangshan/Bundle.scala
+@@ -554,6 +554,10 @@ class DistributedCSRIO(implicit p: Parameters) extends XSBundle {
+     val addr = Output(UInt(12.W))
+     val data = Output(UInt(XLEN.W))
+   })
++  val anchor = ValidIO(new Bundle {
++    val unlockAll = Output(Bool())
++    val lockPMP0 = Output(Bool())
++  })
+ }
+ 
+ class DistributedCSRUpdateReq(implicit p: Parameters) extends XSBundle {
+diff --git a/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala b/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala
+index d13875468..8f8a2e577 100644
+--- a/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala
++++ b/src/main/scala/xiangshan/backend/decode/DecodeUnit.scala
+@@ -435,6 +435,13 @@ object CBODecode extends DecodeConstants {
+   )
+ }
+ 
++object AnchorDecode extends DecodeConstants {
++  val table: Array[(BitPat, List[BitPat])] = Array(
++    ANCHOR_ENTER -> List(SrcType.reg, SrcType.reg, SrcType.X, FuType.csr, CSROpType.anchor_enter, N, N, N, Y, Y, N, SelImm.X),
++    ANCHOR_EXIT  -> List(SrcType.reg, SrcType.reg, SrcType.X, FuType.csr, CSROpType.anchor_exit, N, N, N, Y, Y, N, SelImm.X)
++  )
++}
++
+ /**
+  * XiangShan Trap Decode constants
+  */
+@@ -585,6 +592,7 @@ class DecodeUnit(implicit p: Parameters) extends XSModule with DecodeUnitConstan
+     XSTrapDecode.table ++
+     BDecode.table ++
+     CBODecode.table ++
++    AnchorDecode.table ++
+     SvinvalDecode.table
+   // assertion for LUI: only LUI should be assigned `selImm === SelImm.IMM_U && fuType === FuType.alu`
+   val luiMatch = (t: Seq[BitPat]) => t(3).value == FuType.alu.litValue && t.reverse.head.value == SelImm.IMM_U.litValue
+diff --git a/src/main/scala/xiangshan/backend/fu/CSR.scala b/src/main/scala/xiangshan/backend/fu/CSR.scala
+index 8366b95ef..d8f433800 100644
+--- a/src/main/scala/xiangshan/backend/fu/CSR.scala
++++ b/src/main/scala/xiangshan/backend/fu/CSR.scala
+@@ -429,8 +429,12 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+   // PMP Mapping
+   val pmp = Wire(Vec(NumPMP, new PMPEntry())) // just used for method parameter
+   val pma = Wire(Vec(NumPMA, new PMPEntry())) // just used for method parameter
+-  val pmpMapping = pmp_gen_mapping(pmp_init, NumPMP, PmpcfgBase, PmpaddrBase, pmp)
+-  val pmaMapping = pmp_gen_mapping(pma_init, NumPMA, PmacfgBase, PmaaddrBase, pma)
++
++  val unlockAllTemplate = csrio.customCtrl.distribute_csr.anchor.valid && csrio.customCtrl.distribute_csr.anchor.bits.unlockAll
++  val lockPMP0Template = csrio.customCtrl.distribute_csr.anchor.valid && csrio.customCtrl.distribute_csr.anchor.bits.lockPMP0
++
++  val pmpMapping = pmp_gen_mapping(pmp_init, NumPMP, PmpcfgBase, PmpaddrBase, pmp, unlockAllTemplate, lockPMP0Template)
++  val pmaMapping = pmp_gen_mapping(pma_init, NumPMA, PmacfgBase, PmaaddrBase, pma, 0.B, 0.B)
+ 
+   // Superviser-Level CSRs
+ 
+@@ -798,7 +802,7 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+   val addrInPerfCnt = (addr >= Mcycle.U) && (addr <= Mhpmcounter31.U) ||
+     (addr >= Mcountinhibit.U) && (addr <= Mhpmevent31.U) ||
+     addr === Mip.U
+-  csrio.isPerfCnt := addrInPerfCnt && valid && func =/= CSROpType.jmp
++  csrio.isPerfCnt := addrInPerfCnt && valid && (func =/= CSROpType.jmp && func =/= CSROpType.anchor_enter && func =/= CSROpType.anchor_exit)
+ 
+   // satp wen check
+   val satpLegalMode = (wdata.asTypeOf(new SatpStruct).mode===0.U) || (wdata.asTypeOf(new SatpStruct).mode===8.U)
+@@ -822,11 +826,37 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+   io.out.bits.uop.cf := cfOut
+   io.out.bits.uop.ctrl.flushPipe := flushPipe
+ 
++  val isAnchorEnter = func === CSROpType.anchor_enter
++  val isAnchorExit  = func === CSROpType.anchor_exit
++  val isAnchor      = CSROpType.isAnchor(func)
++
++  val illegalAnchor = valid && isAnchor && priviledgeMode < ModeM
++
+   // send distribute csr a w signal
+   csrio.customCtrl.distribute_csr.w.valid := wen && permitted
+   csrio.customCtrl.distribute_csr.w.bits.data := wdata
+   csrio.customCtrl.distribute_csr.w.bits.addr := addr
+ 
++  csrio.customCtrl.distribute_csr.anchor.valid := valid && isAnchor && !illegalAnchor
++  csrio.customCtrl.distribute_csr.anchor.bits.unlockAll := isAnchorEnter
++  csrio.customCtrl.distribute_csr.anchor.bits.lockPMP0 := isAnchorExit
++
++  val pmp0AddrDup = Reg(UInt((PMPAddrBits - PMPOffBits).W))
++
++  val pmp0Lock = RegInit(0.B)
++
++  when (wen && permitted && addr === PmpcfgBase.U && !pmp0Lock) {
++    pmp0Lock := wdata(7)
++  } .elsewhen (valid && isAnchor && !illegalAnchor && isAnchorExit) {
++    pmp0Lock := 1.B // lock PMP0
++  } .elsewhen (valid && isAnchor && !illegalAnchor && isAnchorEnter) {
++    pmp0Lock := 0.B // unlock all, including PMP0
++  }
++
++  when (wen && permitted && addr === PmpaddrBase.U && !pmp0Lock) {
++    pmp0AddrDup := wdata // duplicate for easier usage of anchor insts
++  }
++
+   // Fix Mip/Sip write
+   val fixMapping = Map(
+     MaskedRegMap(Mip, mipReg.asUInt, mipFixMask),
+@@ -893,7 +923,7 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+   // Illegal priviledged instruction check
+   val isIllegalAddr = valid && CSROpType.needAccess(func) && MaskedRegMap.isIllegalAddr(mapping, addr)
+   val isIllegalAccess = wen && !permitted
+-  val isIllegalPrivOp = illegalMret || illegalSret || illegalSModeSret || illegalWFI
++  val isIllegalPrivOp = illegalMret || illegalSret || illegalSModeSret || illegalWFI || illegalAnchor
+ 
+   // expose several csr bits for tlb
+   tlbBundle.priv.mxr   := mstatusStruct.mxr.asBool
+@@ -904,7 +934,7 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+   // Branch control
+   val retTarget = Wire(UInt(VAddrBits.W))
+   val resetSatp = addr === Satp.U && wen // write to satp will cause the pipeline be flushed
+-  flushPipe := resetSatp || (valid && func === CSROpType.jmp && !isEcall && !isEbreak)
++  flushPipe := resetSatp || (valid && ((func === CSROpType.jmp && !isEcall && !isEbreak) || CSROpType.isAnchor(func)))
+ 
+   retTarget := DontCare
+   // val illegalEret = TODO
+@@ -950,6 +980,20 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+     retTarget := sepc(VAddrBits-1, 0)
+   }
+ 
++  when (valid && isAnchorEnter && !illegalAnchor) {
++    val mstatusOld = WireInit(mstatus.asTypeOf(new MstatusStruct))
++    val mstatusNew = WireInit(mstatus.asTypeOf(new MstatusStruct))
++    mstatusNew.ie.m := 0.B // clear MIE
++    mstatus := mstatusNew.asUInt
++    // clear all pmp entry lock bits handled in PMP module
++    retTarget := Cat(pmp0AddrDup, 0.U(PMPOffBits.W)) // set retTarget to pmp0 addr
++  }
++
++  when (valid && isAnchorExit && !illegalAnchor) {
++    // lock pmp0 entry handled in PMP module
++    retTarget := src1 // rs1
++  }
++
+   when (valid && isUret) {
+     val mstatusOld = WireInit(mstatus.asTypeOf(new MstatusStruct))
+     val mstatusNew = WireInit(mstatus.asTypeOf(new MstatusStruct))
+@@ -1090,7 +1134,7 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+   // val delegS = ((deleg & (1 << (causeNO & 0xf))) != 0) && (priviledgeMode < ModeM);
+   val delegS = deleg(causeNO(3,0)) && (priviledgeMode < ModeM)
+   val clearTval = !updateTval || raiseIntr
+-  val isXRet = io.in.valid && func === CSROpType.jmp && !isEcall && !isEbreak
++  val isXRet = io.in.valid && ((func === CSROpType.jmp && !isEcall && !isEbreak) || (isAnchor && !illegalAnchor))
+ 
+   // ctrl block will use theses later for flush
+   val isXRetFlag = RegInit(false.B)
+diff --git a/src/main/scala/xiangshan/backend/fu/PMP.scala b/src/main/scala/xiangshan/backend/fu/PMP.scala
+index 60dccbe7f..ff78a89ef 100644
+--- a/src/main/scala/xiangshan/backend/fu/PMP.scala
++++ b/src/main/scala/xiangshan/backend/fu/PMP.scala
+@@ -285,7 +285,7 @@ class PMPEntry(implicit p: Parameters) extends PMPBase with PMPMatchMethod {
+   }
+ }
+ 
+-trait PMPMethod extends PMPConst {
++trait PMPMethod extends PMPConst with HasCSRConst {
+   def pmp_init() : (Vec[UInt], Vec[UInt], Vec[UInt])= {
+     val cfg = WireInit(0.U.asTypeOf(Vec(NumPMP/8, UInt(PMXLEN.W))))
+     val addr = Wire(Vec(NumPMP, UInt((PMPAddrBits-PMPOffBits).W)))
+@@ -301,7 +301,9 @@ trait PMPMethod extends PMPConst {
+     num: Int = 16,
+     cfgBase: Int,
+     addrBase: Int,
+-    entries: Vec[PMPEntry]
++    entries: Vec[PMPEntry],
++    unlockAll: Bool,
++    lockPMP0: Bool
+   ) = {
+     val pmpCfgPerCSR = PMXLEN / new PMPConfig().getWidth
+     def pmpCfgIndex(i: Int) = (PMXLEN / 32) * (i / pmpCfgPerCSR)
+@@ -325,6 +327,21 @@ trait PMPMethod extends PMPConst {
+       ))
+     }).fold(Map())((a, b) => a ++ b) // ugly code, hit me if u have better codes
+ 
++    if (cfgBase == PmpcfgBase) {
++      // only handle Pmpcfg
++      println("Debug: PMP CFG code block called")
++
++      // val vec = cfgMerged.asTypeOf(Vec(num / pmpCfgPerCSR, Vec(pmpCfgPerCSR, new PMPConfig())))
++      when (lockPMP0) {
++        cfgMerged(0) := cfgMerged(0) | 0x80.U
++      }
++      when (unlockAll) {
++        cfgMerged.map {
++          a => a := a & "h_7F7F7F7F7F7F7F7F".U
++        }
++      }
++    }
++
+     val addr_mapping = (0 until num).map(i => {Map(
+       MaskedRegMap(
+         addr = addrBase + i,
+@@ -348,12 +365,13 @@ class PMP(implicit p: Parameters) extends PMPXSModule with HasXSParameter with P
+   })
+ 
+   val w = io.distribute_csr.w
++  val anchor = io.distribute_csr.anchor
+ 
+   val pmp = Wire(Vec(NumPMP, new PMPEntry()))
+   val pma = Wire(Vec(NumPMA, new PMPEntry()))
+ 
+-  val pmpMapping = pmp_gen_mapping(pmp_init, NumPMP, PmpcfgBase, PmpaddrBase, pmp)
+-  val pmaMapping = pmp_gen_mapping(pma_init, NumPMA, PmacfgBase, PmaaddrBase, pma)
++  val pmpMapping = pmp_gen_mapping(pmp_init, NumPMP, PmpcfgBase, PmpaddrBase, pmp, unlockAll = anchor.valid && anchor.bits.unlockAll, lockPMP0 = anchor.valid && anchor.bits.lockPMP0)
++  val pmaMapping = pmp_gen_mapping(pma_init, NumPMA, PmacfgBase, PmaaddrBase, pma, unlockAll = 0.B, lockPMP0 = 0.B)
+   val mapping = pmpMapping ++ pmaMapping
+ 
+   val rdata = Wire(UInt(PMXLEN.W))
+diff --git a/src/main/scala/xiangshan/package.scala b/src/main/scala/xiangshan/package.scala
+index 4973dd736..db99de8fb 100644
+--- a/src/main/scala/xiangshan/package.scala
++++ b/src/main/scala/xiangshan/package.scala
+@@ -200,6 +200,9 @@ package object xiangshan {
+     def wrti = "b101".U
+     def seti = "b110".U
+     def clri = "b111".U
++    def anchor_enter = "b1100".U
++    def anchor_exit  = "b1000".U
++    def isAnchor(op: UInt) = op(3) === 1.U
+     def needAccess(op: UInt): Bool = op(1, 0) =/= 0.U
+   }
+ 
+-- 
+2.34.1
+

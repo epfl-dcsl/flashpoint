@@ -1,0 +1,66 @@
+From ee56e3415cbc85ea605bfbacd72ba8f575ef3abb Mon Sep 17 00:00:00 2001
+From: Guokai Chen <guokai.chen@epfl.ch>
+Date: Tue, 29 Sep 2026 00:35:00 +0200
+Subject: [PATCH] push missing modifications
+
+---
+ src/main/scala/xiangshan/backend/fu/CSR.scala | 27 ++++++++++++++++++-
+ 1 file changed, 26 insertions(+), 1 deletion(-)
+
+diff --git a/src/main/scala/xiangshan/backend/fu/CSR.scala b/src/main/scala/xiangshan/backend/fu/CSR.scala
+index d8f433800..c02af6d9f 100644
+--- a/src/main/scala/xiangshan/backend/fu/CSR.scala
++++ b/src/main/scala/xiangshan/backend/fu/CSR.scala
+@@ -844,9 +844,11 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+   val pmp0AddrDup = Reg(UInt((PMPAddrBits - PMPOffBits).W))
+ 
+   val pmp0Lock = RegInit(0.B)
++  val pmp0Mode = RegInit(0.U(2.W))
+ 
+   when (wen && permitted && addr === PmpcfgBase.U && !pmp0Lock) {
+     pmp0Lock := wdata(7)
++    pmp0Mode := wdata(4,3)
+   } .elsewhen (valid && isAnchor && !illegalAnchor && isAnchorExit) {
+     pmp0Lock := 1.B // lock PMP0
+   } .elsewhen (valid && isAnchor && !illegalAnchor && isAnchorEnter) {
+@@ -980,13 +982,36 @@ class CSR(implicit p: Parameters) extends FunctionUnit with HasCSRConst with PMP
+     retTarget := sepc(VAddrBits-1, 0)
+   }
+ 
++  def pmp_napot_base_from_reg(pmpaddr_reg: UInt): UInt = {
++    // PMPADDR is typically 54 bits wide, representing 4-byte words.
++    val PMPADDR_WIDTH = pmpaddr_reg.getWidth
++
++    // 1. mask = pmpaddr ^ (pmpaddr + 1)
++    // The 'mask' is used to find the least significant bit (LSB) that is set
++    // in the PMPADDR encoding, which determines the size of the NAPOT region.
++    val pmpaddr_plus_1 = pmpaddr_reg + 1.U
++    val mask = pmpaddr_reg ^ pmpaddr_plus_1
++
++    // 2. base_words = pmpaddr & ~mask
++    // This clears all bits from the NAPOT encoding that define the size,
++    // leaving only the bits that define the base address word.
++    val base_words = pmpaddr_reg & (~mask).asUInt
++
++    // 3. base_bytes = base_words * 4 (same as << 2)
++    // The PMPADDR register holds a word address, so multiply by 4 (<< 2) to get the byte address.
++    // The output address is 56 bits wide (54-bit pmpaddr + 2 for byte offset).
++    val base_bytes = base_words << 2.U(2.W)
++
++    base_bytes.asUInt
++  }
++
+   when (valid && isAnchorEnter && !illegalAnchor) {
+     val mstatusOld = WireInit(mstatus.asTypeOf(new MstatusStruct))
+     val mstatusNew = WireInit(mstatus.asTypeOf(new MstatusStruct))
+     mstatusNew.ie.m := 0.B // clear MIE
+     mstatus := mstatusNew.asUInt
+     // clear all pmp entry lock bits handled in PMP module
+-    retTarget := Cat(pmp0AddrDup, 0.U(PMPOffBits.W)) // set retTarget to pmp0 addr
++    retTarget := Mux(pmp0Mode === 3.U, pmp_napot_base_from_reg(pmp0AddrDup), Cat(pmp0AddrDup, 0.U(PMPOffBits.W))) // set retTarget to pmp0 addr
+   }
+ 
+   when (valid && isAnchorExit && !illegalAnchor) {
+-- 
+2.34.1
+

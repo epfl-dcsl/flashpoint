@@ -1,0 +1,49 @@
+From 05dfcaead91e73053c400125b1932d26d77abf3c Mon Sep 17 00:00:00 2001
+From: Guokai Chen <guokai.chen@epfl.ch>
+Date: Tue, 2 Dec 2025 15:28:06 +0100
+Subject: [PATCH 2/3] bump submodule
+
+---
+ .gitmodules | 4 ++--
+ rocket-chip | 2 +-
+ utility     | 2 +-
+ 3 files changed, 4 insertions(+), 4 deletions(-)
+
+diff --git a/.gitmodules b/.gitmodules
+index 9bbb635ad..a05333e34 100644
+--- a/.gitmodules
++++ b/.gitmodules
+@@ -1,6 +1,6 @@
+ [submodule "rocket-chip"]
+ 	path = rocket-chip
+-	url = https://github.com/OpenXiangShan/rocket-chip.git
++	url = https://github.com/VCA-EPFL/xiangshan-rocket.git
+ [submodule "difftest"]
+ 	path = difftest
+ 	url = https://github.com/OpenXiangShan/difftest.git
+@@ -15,7 +15,7 @@
+ 	url = https://github.com/OpenXiangShan/fudian.git
+ [submodule "utility"]
+ 	path = utility
+-	url = https://github.com/OpenXiangShan/utility
++	url = https://github.com/VCA-EPFL/xiangshan-utility.git
+ [submodule "coupledL2"]
+ 	path = coupledL2
+ 	url = https://github.com/OpenXiangShan/coupledL2
+diff --git a/rocket-chip b/rocket-chip
+index 16b7bcb01..7595a172f 160000
+--- a/rocket-chip
++++ b/rocket-chip
+@@ -1 +1 @@
+-Subproject commit 16b7bcb013350e49c9c11d80e17dcff842fccfd6
++Subproject commit 7595a172f72df27223b4f93382324e2c6e10790d
+diff --git a/utility b/utility
+index a89fcb917..385b09720 160000
+--- a/utility
++++ b/utility
+@@ -1 +1 @@
+-Subproject commit a89fcb917c83b896b2c0051a9ed024e5f918ca3c
++Subproject commit 385b097204e7bebf78b79bd8b554a1b3eb057b93
+-- 
+2.34.1
+

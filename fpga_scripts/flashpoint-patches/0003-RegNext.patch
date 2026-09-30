@@ -1,0 +1,29 @@
+From cd548d2cfa1b055c45dc5454f5b99a604ff42114 Mon Sep 17 00:00:00 2001
+From: Guokai Chen <guokai.chen@epfl.ch>
+Date: Wed, 3 Dec 2025 15:34:36 +0100
+Subject: [PATCH 3/3] RegNext
+
+---
+ src/main/scala/xiangshan/backend/fu/PMP.scala | 4 ++--
+ 1 file changed, 2 insertions(+), 2 deletions(-)
+
+diff --git a/src/main/scala/xiangshan/backend/fu/PMP.scala b/src/main/scala/xiangshan/backend/fu/PMP.scala
+index ff78a89ef..76be5a158 100644
+--- a/src/main/scala/xiangshan/backend/fu/PMP.scala
++++ b/src/main/scala/xiangshan/backend/fu/PMP.scala
+@@ -332,10 +332,10 @@ trait PMPMethod extends PMPConst with HasCSRConst {
+       println("Debug: PMP CFG code block called")
+ 
+       // val vec = cfgMerged.asTypeOf(Vec(num / pmpCfgPerCSR, Vec(pmpCfgPerCSR, new PMPConfig())))
+-      when (lockPMP0) {
++      when (RegNext(lockPMP0)) {
+         cfgMerged(0) := cfgMerged(0) | 0x80.U
+       }
+-      when (unlockAll) {
++      when (RegNext(unlockAll)) {
+         cfgMerged.map {
+           a => a := a & "h_7F7F7F7F7F7F7F7F".U
+         }
+-- 
+2.34.1
+

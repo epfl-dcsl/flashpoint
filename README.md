@@ -23,7 +23,7 @@ Source repository: [epfl-dcsl/flashpoint](https://github.com/epfl-dcsl/flashpoin
 | Docker image build time | About 30 minutes |
 | QEMU experiment (in Docker container) | Less than 30 minutes |
 | FPGA experiment (on provided hardware) | Less than 30 minutes |
-| Kani verification (on provided hardware) | Less than 15 minutes of human time and about 18 hours of compute time |
+| Kani verification (on provided hardware) | Less than 15 minutes of human time and about 15 hours of compute time |
 | Evaluation format | Scripts to inspect console logs, cycle and instruction counts, and verification times |
 
 The Docker image installs the required Rust and RISC-V toolchains, recursively
@@ -90,7 +90,7 @@ Linux should boot with Tyche and open a shell. No command needs to be run in the
 guest. Exit QEMU by pressing <kbd>Ctrl</kbd>+<kbd>A</kbd>, then <kbd>X</kbd>.
 The complete console output remains in `my_qemu_run_log.txt`.
 
-### Verify the PMP configuration
+### Validate the PMP configuration
 
 Extract and sort the PMP logs, which may arrive out of order from different
 harts:
@@ -106,7 +106,7 @@ Compare the extracted configuration with the expected result:
 diff -u expected_results/pmp_logs_figure_4.txt extracted_pmp_logs.txt
 ```
 
-Successful verification produces no diff. 
+Successful validation produces no diff. 
 
 See
 [`docs/PMP_Configuration.md`](docs/PMP_Configuration.md) for a detailed explanation of
@@ -136,9 +136,7 @@ This experiment uses a modified XiangShan core on a Xilinx U55C FPGA. The
 artifact includes a prebuilt bitstream because synthesizing a new bitstream
 takes substantial time.
 
-FPGA access is provided to artifact evaluators. Submit your SSH public key and
-coordinate your usage window through HotCRP before starting. Use the VPN and SSH
-connection details supplied in the artifact appendix or through HotCRP.
+FPGA access is provided to artifact evaluators. 
 
 ### Build the software image
 
@@ -162,24 +160,11 @@ After copying the binary, you may exit the container.
 
 ### Program and run the FPGA
 
-Copy `xiangshan_software.bin` to `~/sw_bins/` on the provided remote FPGA server. 
-On that server, prepare the FPGA and load the software using the following script:
-
-```sh
-sh flashpoint-prep.sh
-```
-
-Open the serial console:
-
-```sh
-sh minicom.sh
-```
-
-Keep Minicom open. In a second terminal session, start execution:
-
-```sh
-sh test-run.sh
-```
+For instructions to generate the bitstream, program the board, load
+`xiangshan_software.bin`, and monitor its output, follow the
+[FPGA setup and execution guide](fpga_scripts/README.md). The exact steps may
+vary depending on how the FPGA, programming, and reset interfaces are connected
+in your setup.
 
 The console output should resemble
 [`expected_results/flashpoint-xiangshan-run-log.txt`](expected_results/flashpoint-xiangshan-run-log.txt).
@@ -189,21 +174,23 @@ To leave Minicom, press <kbd>Ctrl</kbd>+<kbd>A</kbd>, then <kbd>Z</kbd>,
 
 ### Verify boot overhead
 
-The boot log should contain:
+The boot logs from the Anchor begin with :
 
 ```text
-[INFO | anchor] Anchor execution: instructions: 1456 cycles: 4857
+[INFO | anchor] Boot time measurements for hart 0:
 ```
 
-It should also contain the final M-mode execution totals:
+It should also contain the total M-mode execution:
 
 ```text
 [INFO | tyche::riscv] HartID: 0 Mcycle : 676995571 Minstret 102677344
 ```
 
-The former is the proportion of the Anchor's execution and the latter is the total M-mode execution before the first switch to Linux. 
+The former is the proportion of The former logs indicate the execution overhead of the
+Anchor, TPM driver, and firmware while the latter is the
+total M-mode execution before first switch to Linux.the Anchor's execution and the latter is the total M-mode execution before the first switch to Linux. 
 
-The counts will vary across boots, but will not affect the negligible overhead of the Anchor during boot time (as reported in Table 3 in the paper, the artifact appendix explains more on this). 
+The counts will vary across boots, but will not affect the negligible overhead of the Anchor during boot time (as reported in Table 3 in the paper). 
 
 ### Run the benchmarks
 
@@ -245,26 +232,23 @@ Reference output:
 
 ## 4. Experiment 3: Kani verification
 
-**Time required:** less than 15 minutes of human time and approximately 18 hours
+**Time required:** less than 15 minutes of human time and approximately 15 hours
 of compute time.
 
 The complete model-checking run requires a machine with at least 64 GB of RAM.
-Artifact evaluators are given access to a preconfigured server where the
-repository and `run_kani.sh` are already available. Submit your SSH public key
-and coordinate the server usage window through HotCRP.
 
-On the verification server, run:
+On the provided server, run:
 
 ```sh
 cd flashpoint
 tmux new -s kani-verif-flashpoint
-./run_kani.sh
+just verif-kani-anchor
 ```
 
 Detach from tmux by pressing <kbd>Ctrl</kbd>+<kbd>B</kbd>, then <kbd>D</kbd>. The
-run writes its output to `kani-log.txt` and takes approximately 18 hours.
+run takes approximately 15 hours.
 
-Check again after approximately 18 hours, the end of the log should report:
+Check again after approximately 15 hours. The end of the log should report:
 
 ```text
 Complete - 6 successfully verified harnesses, 0 failures, 6 total.
