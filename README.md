@@ -186,9 +186,23 @@ It should also contain the total M-mode execution:
 [INFO | tyche::riscv] HartID: 0 Mcycle : 676995571 Minstret 102677344
 ```
 
-The former is the proportion of The former logs indicate the execution overhead of the
-Anchor, TPM driver, and firmware while the latter is the
-total M-mode execution before first switch to Linux.the Anchor's execution and the latter is the total M-mode execution before the first switch to Linux. 
+The former logs indicate the execution overhead of the Anchor, TPM driver, and firmware while the latter is the total M-mode execution before first switch to Linux.
+
+Copy the boot log in a text file, and then this script computes the overhead in percentage.
+```sh
+./scripts/m-mode-boot-proportions.sh expected_results/flashpoint-xiangshan-run-log.txt 
+```
+
+Output looks like: 
+
+```
+Region                        % mcycle   % minstret
+Anchor                       0.005219%    0.007454%
+TPM driver (SRTM)            0.000391%    0.000167%
+Untrusted firmware          46.323093%   89.801057%
+TPM driver (DRTM)            0.000282%    0.000109%
+Tyche                       53.670817%   10.191091%
+```
 
 The counts will vary across boots, but will not affect the negligible overhead of the Anchor during boot time (as reported in Table 3 in the paper). 
 
@@ -232,17 +246,16 @@ Reference output:
 
 ## Experiment 3: Kani verification
 
-**Time required:** less than 15 minutes of human time and approximately 15 hours
-of compute time.
+**Time required:** less than 15 minutes of human time and approximately 15 hours of compute time.
 
-The complete model-checking run requires a machine with at least 64 GB of RAM.
+The complete model-checking run requires a machine with at least 64 GB of RAM, with Kani version 0.67.0.
 
 On the provided server, run:
 
 ```sh
 cd flashpoint
 tmux new -s kani-verif-flashpoint
-just verif-kani-anchor
+just verif-kani-anchor 2>&1 | tee kani-log.txt
 ```
 
 Detach from tmux by pressing <kbd>Ctrl</kbd>+<kbd>B</kbd>, then <kbd>D</kbd>. The
@@ -263,6 +276,52 @@ python3 scripts/extract_verif_time.py kani-log.txt
 
 A complete reference log is available in
 [`expected_results/kani-run-log.txt`](expected_results/kani-run-log.txt).
+
+## TROUBLESHOOTING 
+
+### Dockerfile 
+
+If recursive submodule checkout fails intermittently with GitHub authentication or rate-limit errors, retry using shallow clones as follows: 
+
+```sh
+git submodule update --init --recursive --depth 1
+```
+
+The following command can be used to check if any submodules are still uninitialized, if any entry still starts with '-'.
+
+```sh
+git submodule status --recursive
+```
+
+You can even use a retry loop as below, which only retries the missing submodules. REPO_REF = main. 
+
+```sh
+RUN test -n "${REPO_URL}" \
+ && git clone "${REPO_URL}" flashpoint \
+ && git -C flashpoint checkout "${REPO_REF}" \
+ && cd /flashpoint \
+ && for i in 1 2 3 4 5 6 7 8; do \
+ git submodule sync --recursive; \
+ git submodule update --init --recursive --depth 1 && break; \
+ sleep 45; \
+ done \
+ && git submodule status --recursive \
+ | awk '/^-/ {print "UNINITIALISED: " $0; bad=1} END {exit bad+0}'
+```
+
+### Kani 
+
+Kani also requires storage for temporary computations. 
+In case the storage in your filesystem root is full, you may specify a different storage directory <storage-path> using the following: 
+
+```sh
+mkdir -p <storage-path>/kani-tmp
+mkdir -p <storage-path>/kani-target
+chmod 700 <storage-path>/kani-tmp
+TMPDIR=<storage-path>/kani-tmp 
+CARGO_TARGET_DIR=<storage-path>/kani-target 
+just verif-kani-anchor 2>&1 | tee kani-log.txt
+```
 
 ## License
 

@@ -17,7 +17,14 @@ The following command will clone the required XiangShan source code and apply ou
 sh download_xiangshan.sh
 ```
 
-## Generating the Bitstream
+## Using Prebuilt Bitstream 
+
+The prebuilt bitstreams are available as a [github release](https://github.com/epfl-dcsl/flashpoint/releases/tag/fpga-bitstream-v1.0.0], u55c-bitstream.tar.gz. 
+
+The prebuilt bitstreams are under the `u55c-bitstream` directory. 
+For using these directly, copy them under `project_X/project_X.runs/impl_1` (and create those directories as needed). 
+
+## Generating the Bitstream (skip if using prebuilt bitstream)
 
 The following commands generate the Verilog files for the Flashpoint-enabled version of XiangShan, create a Vivado project, and generate the bitstream for the U55C board:
 
@@ -48,13 +55,13 @@ On Machine B, the bitstream exposes a VIO interface for resetting and releasing 
 
 We assume that Machine B is also the machine used to generate the bitstream.
 
-Program the FPGA from Machine B using the following script in the `anchor-fpga` repository:
+Program the FPGA from Machine B using the following script:
 
 ```shell
 vivado -mode batch -source program_u55c.tcl
 ```
 
-Still on Machine B, reset the XiangShan core by executing the following Tcl script from the `anchor-fpga` repository:
+Still on Machine B, reset the XiangShan core by executing the following Tcl script:
 
 ```shell
 vivado -mode batch -source set_u55c_vio_zero.tcl
@@ -96,7 +103,7 @@ minicom -D /dev/ttyUSB2
 
 > The UART device name (`ttyUSB2`) may differ on your system. If this device does not work, check the available USB UART devices on Machine B.
 
-Still on Machine B, open another terminal and release the XiangShan core by executing the following script from the `anchor-fpga` repository:
+Still on Machine B, open another terminal and release the XiangShan core by executing the following script:
 
 ```shell
 vivado -mode batch -source set_u55c_vio_one.tcl
