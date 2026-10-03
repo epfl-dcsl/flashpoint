@@ -318,8 +318,8 @@ In case the storage in your filesystem root is full, you may specify a different
 mkdir -p <storage-path>/kani-tmp
 mkdir -p <storage-path>/kani-target
 chmod 700 <storage-path>/kani-tmp
-TMPDIR=<storage-path>/kani-tmp 
-CARGO_TARGET_DIR=<storage-path>/kani-target 
+TMPDIR=<storage-path>/kani-tmp \ 
+CARGO_TARGET_DIR=<storage-path>/kani-target \ 
 just verif-kani-anchor 2>&1 | tee kani-log.txt
 ```
 
